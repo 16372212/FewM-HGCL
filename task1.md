@@ -43,3 +43,6 @@ def act_dataset_malware_reportid_list_to_labels(reportid_list):
 3. 根据新的matrix构图
 
 4. 数据增强
+
+
+11月末交，所以12号之前必须初步掌握构图策略（解决完数据的对应问题），16号前构图结束。20号进行完增强实验。10月末开始训练

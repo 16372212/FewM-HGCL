@@ -13,36 +13,46 @@ def analyze_file_hash():
 
 def analyze_name_family():
 
-    name_list, family_list = getLableFromMicrosoft(InputDataPath)
+    hash_dict, name_list, family_list = getLableFromMicrosoft(InputDataPath) # [hash]: {'name': name, 'family':family}
 
-    print('====================len of name and family=========================')
-    print(len(name_list))
-    print(len(family_list))
+    # name: different family set()
+    family_dict = {}
 
-    name_set = set(name_list)
-    family_set = set(family_list)
+    for hashs in hash_dict:
+        if hash_dict[hashs]['name'] not in family_dict:
+            family_dict[hash_dict[hashs]['name']] = set()
+        family_dict[hash_dict[hashs]['name']].add(hash_dict[hashs]['family'])
 
-    print('====================set of name and family=========================')
-    print(name_set)
-    print(family_set)
+    print('====================number of all labels=========================')
+    print(len(hash_dict))
+    
+    print('====================len of name and its family num=========================')
+    print(len(family_dict))
+    
+    for names in family_dict:
+        print(f'{names}: {len(family_dict[names])}')
 
-    name_dict = {}
+    print(set(name_list))
 
-    i = 0
-    for name in name_list:
-        if name not in name_dict:
-            name_dict[name] = []
-        name_dict[name].append(family_list[i])  
-        i += 1
-
-
-    print('====================dict:\{name : family_name\}=========================')
-
-    for name in name_dict:
-        print(f'name:{name}, number of name:{len(name_dict[name])}')
-        temp_family_set = set(name_dict[name])
-        print(temp_family_set)
+    print('====================family set of all names=========================')
+    for names in family_dict:
+        print(f'{names}: {family_dict[names]}')
         print()
 
+    print('所以可以看到这种策略下，存在mira!rfh, 也存在mira，那么需要区分这两种family吗？还是直接都按照mira来计算')
 
-analyze_file_hash()
+    return family_dict
+
+
+def mapFamilyAndName2id():
+    family_dict = analyze_name_family
+    int i = 0
+    id_dict = {}
+    for names in family_dict:
+        for family in family_dict[names]:
+            id_dict[name+family] = i
+            i+=1
+    return id_dict
+
+
+mapFamilyAndName2id()

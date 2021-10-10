@@ -25,26 +25,27 @@ def getAllFiles(analysis_root_dir):
     return L
 
 
-def explainMicrosoftResult(result):
+def explainMicrosoftResult(result, file_name):
     """ 从类似Trojan:Win32/Malex.gen!F这样的格式中得到name, family"""
     name = ''
     family = ''
     list = result.split(':')
 
     if len(list) < 2:
-        return '', ''
-    name = list[0]
+        return '', '', ''
     # 规范化label的名字
     for key in NAME_LIST:
-        if key in name:
+        if key in list[0]:
             name = NAME_LIST[key]
             break
+    if name == '':
+        return '', '', ''
     if '/' in list[1]:
         family_list = list[1].split('/') # Win32/Skeeyah.A
         family = family_list[1]
     if '.' in family:
         family = family.split('.')[0]
-    return name, family
+    return name, family, file_name
 
 
 def readScansFromMicrosoft(filename):
@@ -74,8 +75,8 @@ def readScansFromMicrosoft(filename):
             resultStr = doc['scans']['Microsoft']['result']
             # 保证结果不是None
             if str(resultStr).find('None') == -1:
-                return explainMicrosoftResult(str(resultStr).lower())
-    return '', ''
+                return explainMicrosoftResult(str(resultStr).lower(), doc['sha256'])
+    return '', '', ''
 
 
 def readScansFromAllCompany(filename):
@@ -252,22 +253,19 @@ def getLableFromAllCompany(path):
         
 
 def getLableFromMicrosoft(path):
+    
     jsonFiles = getAllFiles(path)
+    hash_dict = {}
     name_list = []
     family_list = []
     # file_hash = []
     for file in jsonFiles:
-        name, family, fhash = readScansFromMicrosoft(file)
+        name, family, fhash = readScansFromMicrosoft(file) 
         if name != '' and family != '':
             name_list.append(name)
             family_list.append(family)
-            # file_hash.append(fhash)
-        # print(f'{name} {family}')
-    # return name_list, family_list, file_hash
-    return name_list, family_list
-        # labels.append(name+"."+family)
-        # print(name+"."+family)
-    # writeLableToCSV(labels, OutputPath)
+            hash_dict[fhash] = {'name': name, 'family':family}
+    return hash_dict, name_list, family_list
 
 
 def getHashFromFiles(path):
