@@ -2,8 +2,8 @@ import os
 import json
 from util.get_name_family_from_file import getLableFromMicrosoft, getHashFromFiles
 
-InputDataPath = "../布谷鸟数据集/win32/"
-OutputPath = "./label/label.csv"
+InputDataPath = "../../布谷鸟数据集/win32/"
+OutputPath = "../label/label.csv"
 
 
 def analyze_file_hash():
@@ -45,13 +45,14 @@ def analyze_name_family():
 
 
 def mapFamilyAndName2id():
-    family_dict = analyze_name_family
-    int i = 0
+    family_dict = analyze_name_family()
+    i = 0
     id_dict = {}
     for names in family_dict:
         for family in family_dict[names]:
-            id_dict[name+family] = i
+            id_dict[names+family] = i
             i+=1
+    print(id_dict)
     return id_dict
 
 

@@ -42,6 +42,13 @@ def act_dataset_malware_reportid_list_to_labels(reportid_list):
 
 3. 根据新的matrix构图
 
+```python
+# 链接：
+graph[node1.num][node2.type_] = set() # .add(node2.num)
+```
+
+* 172 这里databases_name = ["cuckoo_nfs_db","cuckoo_nfs_db2"]#,"cuckoo_nfs_db3","cuckoo_nfs_db4","cuckoo_nfs_db5"]不需要 加上所有的db吗
+
 4. 数据增强
 
 
