@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
+# @Author :SuMing
 
 import pymongo
 from bson import json_util as jsonb
+from bson.objectid import ObjectId
 import json
 import time
 import os
 import re
+import datetime
+import pickle
+import logging
+
+
+GRAPH_OUTPUT_PATH = './graph.pkl'
+NODE_OUTPUT_PATH = './nodes.pkl'
 f = open('../label/sample_result.txt','r')
 datas = f.read().split('\n')
 labels = {}
@@ -21,23 +30,33 @@ for data in datas:
 
 f.close()
 print('Loaded Labels')
+
+
+with open('../mid_data/api_index_map.pkl', 'rb') as fr:
+    api_index_matrix = pickle.load(fr)
+
+
+MAX_API_NUM = 50
+
 class Sample:
     def __init__(self,num,name,label,family):#,label_code,family_code):
         self.num = num
         self.name = name
         self.label = label
         self.family = family
+        self.key = '' # 新加的
         # self.label_code = label_code
         # self.family_code = family_code
         # num 编号, name file_hash, label 大类, family 小类,两个code 编号
 
 class Node:
-    def __init__(self,num,name,type_,sample,pid):
+    def __init__(self,num,name,type_,sample,pid,key):
         self.num = num
         self.name = name
         self.type_ = type_
         self.sample = sample
         self.pid = pid
+        self.key = key
         #  num 编号, name 唯一标识, type_ 种类, sample 归属样本, pid 进程号, 后两个没用
         ## type_: process, file, reg, memory, sign, network
         ## process: x['behavior']['processtree'] to do dfs
@@ -48,9 +67,98 @@ class Node:
         ## network: x['network']['tcp']['dst'] | x['network']['udp']['dst']
         ## 
 
+
+def analyze_nodes():
+    print('------------analyze nodes------------')
+    print(f' {len(Nodes)} nodes in total')
+    type_dict = {}
+
+    l = len(Nodes)
+
+    for i in range(l):
+        if Nodes[i].type_ not in type_dict:
+            type_dict[Nodes[i].type_] = 1
+        else:
+            type_dict[Nodes[i].type_] += 1
+
+    for type_num in type_dict:
+        print(f'{type_num} : {type_dict[type_num]}')     
+
+
+def ana_labels():
+    print('------------analyze labels------------')
+    print(f'total sample num: {len(labels)}')
+    label_dict = {}
+    family_dict = {} 
+
+    for file_hash in labels:
+        if labels[file_hash]['label'] not in label_dict:
+            label_dict[labels[file_hash]['label']] = 1
+        else:
+            label_dict[labels[file_hash]['label']] += 1
+
+        if labels[file_hash]['family'] not in family_dict:
+            family_dict[labels[file_hash]['family']] = []
+
+        family_dict[labels[file_hash]['family']].append(1) # [labels[file_hash]['label']] = 1
+
+    
+    print(f'total label category : {len(label_dict)}')
+    print(label_dict)
+    # for label in label_dict:
+    #     print(f'label {label} num : {label_dict[label]}')
+
+    print()
+    print(f'total family category : {len(family_dict)}')
+    
+    # for fam in family_dict:
+    #     print(f'family {fam} num : {len(family_dict[fam])}')
+
+    print(f'total samples in sample_list: {len(sample_list)}') 
+
+
 ## 深搜遍历，用于连接样本、进程
 ## 逻辑： sample 和 子process连接, 子process 之间相互可能连接
 def dfs(process,sample):
+    process_name = process['process_name'].replace(' .','.')
+    if process_name=='cmd.exe':
+        return None
+    current = ''
+    # 当前process 是样本本身
+    if sample.name in process_name:
+        current = sample
+    # 当前process 是子进程
+    else:
+        if process_name not in process_list:
+            process_list.append(process_name)
+            process_map[process_name] = len(Nodes)
+            pronode = Node(len(Nodes),process_name,'process','',0,'')
+            Nodes.append(pronode)
+        else:
+            # pronode 赋值为 原有已建立好的节点
+            pronode = Nodes[process_map[process_name]]
+        current = pronode
+        connect(sample,pronode) # 为啥这个要链接
+
+    if 'children' in process:
+        # dfs遍历所有子节点
+        for children in process['children']:
+            childnode = dfs(children,sample)
+            # 如果子节点不是sample样本本身，则建立新的连接
+            if childnode:
+                # connect(sample,childnode)
+                # ******** 适当修改
+                connect(current,childnode)
+                
+    # 若当前节点是样本本身，则不返回内容，以免重复连接
+    if current != sample:
+        return current
+    return None
+
+
+## 深搜遍历，用于连接样本、进程
+## 逻辑： sample 和 子process连接, 子process 之间相互可能连接
+def old_dfs(process,sample):
     process_name = process['process_name'].replace(' .','.')
     if process_name=='cmd.exe':
         return None
@@ -114,6 +222,7 @@ def connect(node1,node2):
     key = str(node1.num)
     if type(node1) == Sample:
         key = 's' + key
+        node1.key = key # 新设置的key
 
     if key not in graph:
         graph[key] = {}
@@ -142,7 +251,7 @@ graph = {}
 Nodes = []
 ip = "192.168.105.224"
 port = 27017
-database_name = "cuckoo_nfs_db2"
+# database_name = "cuckoo_nfs_db2"
 collection_name = "analysis"
 client = pymongo.MongoClient(host=ip, port=port,unicode_decode_error_handler='ignore')
 dblist = client.list_database_names()
@@ -169,18 +278,20 @@ sign_map = {}
 network_list = set()
 network_map = {}
 
-databases_name = ["cuckoo_nfs_db","cuckoo_nfs_db2"]#,"cuckoo_nfs_db3","cuckoo_nfs_db4","cuckoo_nfs_db5"]
+databases_name = ["cuckoo_nfs_db", "cuckoo_nfs_db2"] #,"cuckoo_nfs_db3","cuckoo_nfs_db4","cuckoo_nfs_db5"]
+dbcalls_dict = {'cuckoo_nfs_db':'from_nfs_db1', 'cuckoo_nfs_db2':'from_nfs_db2', 'cuckoo_nfs_db3':'from_nfs_db3', 'cuckoo_nfs_db4':'from_nfs_db4'}
 for database_name in databases_name:
     collections = client[database_name][collection_name]
-    file_collection = client[database_name]['report_id_to_file']
-    for x in collections.find():
+    file_collection = client[database_name]['report_id_to_file'] # 获取所有的file, hash映射，可以看作一个dict
+    call_collection = client['db_calls'][dbcalls_dict[database_name]] 
+    for x in collections.find(): # x中只有id没有hash
         # 进程list,包括样本
         file_hash = ''
 
         # 1.获取hash
         rows = file_collection.find(filter={'_id':str(x['_id'])})
         for row in rows:
-            file_hash = row['file_hash']
+            file_hash = row['file_hash'] 
         if file_hash not in labels:
             continue
 
@@ -229,7 +340,7 @@ for database_name in databases_name:
                             if file not in file_list:
                                 file_list.add(file)
                                 file_map[file] = len(Nodes)
-                                filenode = Node(len(Nodes),file,'file','',-1)
+                                filenode = Node(len(Nodes),file,'file','',-1,'')
                                 Nodes.append(filenode)
                             else:
                                 filenode = Nodes[file_map[file]]
@@ -272,7 +383,7 @@ for database_name in databases_name:
                             if reg not in reg_list:
                                 reg_list.add(reg)
                                 reg_map[reg] = len(Nodes)
-                                regnode = Node(len(Nodes),reg,'reg','',-1)
+                                regnode = Node(len(Nodes),reg,'reg','',-1,'')
                                 Nodes.append(regnode)
                             else:
                                 regnode = Nodes[reg_map[reg]]
@@ -304,7 +415,7 @@ for database_name in databases_name:
                         if memory not in memory_list:
                             memory_list.add(memory)
                             memory_map[memory] = len(Nodes)
-                            memorynode = Node(len(Nodes),memory,'memory','',-1)
+                            memorynode = Node(len(Nodes),memory,'memory','',-1,'')
                             Nodes.append(memorynode)
                         else:
                             memorynode = Nodes[memory_map[memory]]
@@ -319,12 +430,13 @@ for database_name in databases_name:
                     if sign not in sign_list:
                         sign_list.add(sign)
                         sign_map[sign] = len(Nodes)
-                        signnode = Node(len(Nodes),sign,'sign','',-1)
+                        signnode = Node(len(Nodes),sign,'sign','',-1,'')
                         Nodes.append(signnode)
                     else:
                         signnode = Nodes[sign_map[sign]]
                     # 该特征直接与sample相连
                     connect(sample,signnode)
+
 
         # 4.5 构图 - 网络
         network = []
@@ -346,16 +458,63 @@ for database_name in databases_name:
                 if net not in network_list:
                     network_list.add(net)
                     network_map[net] = len(Nodes)
-                    netnode = Node(len(Nodes),net,'network','',-1)
+                    netnode = Node(len(Nodes),net,'network','',-1,'')
                     Nodes.append(netnode)
                 else:
                     netnode = Nodes[network_map[net]]
                 connect(sample,netnode)        
         
+        # 4.6构图 - 获取api节点，直接链接sample
+        call_rows = call_collection.find(filter={'_id':x['_id']})
+        calls = {}
+
+        for call_row in call_rows:
+            calls = call_row['calls']
+        
+        api_num = 0
+        for call in calls:
+            
+            # 先判断这个api是否在里面
+            if call not in api_index_matrix:
+                continue
+            apinode = Node(len(Nodes), call, 'api','',0,'') # 将api对应的转到id， 这个id不太对
+            connect(sample, apinode)
+            Nodes.append(apinode)
+            api_num += 1
+            if api_num > MAX_API_NUM:
+                # print(f'api num more than {MAX_API_NUM}')
+                break
+        
+        
+        # *****zz修改：******
+        # 将sample也加到node里，因为sample也算是一种process，这样为了构造matrix方便。
+        
+        if sample.key != '':
+            sample_node = Node(len(Nodes),file_hash,'process','',-1,sample.key)
+            Nodes.append(sample_node)
+        else:
+            sample_node = Node(len(Nodes),file_hash,'process','',-1,'')
+            Nodes.append(sample_node)
+            logging.warn('出现了sample没有key的情况')
+
+
+    print(f"in database {database_name}")
+
+analyze_nodes()
+ana_labels()
 # print('graph:')
 # print(graph)
 
-f = open('pre1.txt','a+',encoding='utf-8')
+
+# save graph to pkl
+with open(GRAPH_OUTPUT_PATH, 'wb') as fr:
+    pickle.dump(graph, fr)
+
+with open(NODE_OUTPUT_PATH, 'wb') as fr:
+    pickle.dump(Nodes, fr)
+
+today=datetime.date.today()
+f = open(f'pre{today}.txt','a+',encoding='utf-8')
 f.write(str(graph))
 f.write('\n')
 print("Write Graph Done")
@@ -377,3 +536,4 @@ print("Write Sample Done")
 
 # n * m 维度, n 样本个数, m Node 节点个数 = process + file + reg + memory + sign + network 
 matrix = []
+

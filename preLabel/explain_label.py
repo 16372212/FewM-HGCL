@@ -1,7 +1,10 @@
 import os
 import json
-from util.get_name_family_from_file import getLableFromMicrosoft
-from util.mongo_func import read_file_hash_from_mongodb
+# from util.get_name_family_from_file import getLableFromMicrosoft
+# from util.mongo_func import read_file_hash_from_mongodb
+import pymongo
+from bson.objectid import ObjectId
+
 
 InputDataPath = "../布谷鸟数据集/win32/"
 OutputPath = "./label/label.csv"
@@ -9,6 +12,7 @@ host = "192.168.105.224"
 port = 27017
 dbname = "labels"
 colname = "reportid_to_label_kind_name"
+database_name = "cuckoo_nfs_db"
 
 
 """读取目录下所有文件，写入mongo label中的一列
@@ -61,4 +65,28 @@ def readLabelFromMongo():
     # write mongo: label, hash, id
 
 
-writeLabelFromLocal()
+call_id = {}
+
+def readCalls():
+    client = pymongo.MongoClient(host=host, port=port,unicode_decode_error_handler='ignore')
+    
+    call_collection = client['db_calls']['from_nfs_db1'] 
+    collections = client[database_name]['analysis']
+
+    # call_rows = call_collection.find(filter={'_id':ObjectId('5e1f134bdfa067752182eefd')})
+    # call_rows = call_collection.find()
+
+    # for call_row in call_rows:
+    #     # print(call_row['_id'])
+    #     if str(call_row['_id']) not in call_id:
+    #         call_id[str(call_row['_id'])] = 1
+
+    for row in collections.find():
+        call_rows = call_collection.find(filter={'_id':row['_id']})
+        for call_row in call_rows:
+            print(call_row['_id'])
+        # if str(row['_id']) in call_id:
+        #     print(str(row['_id']))
+
+# writeLabelFromLocal()
+readCalls()
