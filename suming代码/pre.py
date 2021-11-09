@@ -15,6 +15,7 @@ import logging
 
 GRAPH_OUTPUT_PATH = './graph.pkl'
 NODE_OUTPUT_PATH = './nodes.pkl'
+SAMPLE_LIST_OUTPUT_PATH = './sample_list.pkl'
 f = open('../label/sample_result.txt','r')
 datas = f.read().split('\n')
 labels = {}
@@ -146,9 +147,9 @@ def dfs(process,sample):
             childnode = dfs(children,sample)
             # 如果子节点不是sample样本本身，则建立新的连接
             if childnode:
-                # connect(sample,childnode)
+                connect(sample,childnode)
                 # ******** 适当修改
-                connect(current,childnode)
+                # connect(current,childnode)
                 
     # 若当前节点是样本本身，则不返回内容，以免重复连接
     if current != sample:
@@ -512,6 +513,10 @@ with open(GRAPH_OUTPUT_PATH, 'wb') as fr:
 
 with open(NODE_OUTPUT_PATH, 'wb') as fr:
     pickle.dump(Nodes, fr)
+
+with open(SAMPLE_LIST_OUTPUT_PATH, 'wb') as fr:
+    pickle.dump(sample_list, fr)
+
 
 today=datetime.date.today()
 f = open(f'pre{today}.txt','a+',encoding='utf-8')

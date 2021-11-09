@@ -49,3 +49,5 @@ def read_file_hash_from_mongodb(host, dbname, colname):
         res[id] = line
     client.close()
     return res
+
+

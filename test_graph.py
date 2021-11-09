@@ -181,7 +181,7 @@ def gen_enhance_add_matrix():
 
 
 def get_api_matrix():
-    OUTPUT_PATH = "../mid_data/api_matrix1_3.pkl"
+    OUTPUT_PATH = "./mid_data/api_matrix1_3.pkl"
     with open(OUTPUT_PATH, 'rb') as fr:
         api_matrix = pickle.load(fr)
         api_index_map = pickle.load(fr)
