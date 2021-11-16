@@ -16,9 +16,13 @@ import logging
 GRAPH_OUTPUT_PATH = './graph.pkl'
 NODE_OUTPUT_PATH = './nodes.pkl'
 SAMPLE_LIST_OUTPUT_PATH = './sample_list.pkl'
+SAMPLE_NUM_TO_NODE_ID_PATH = './sample_num_to_node_id.pkl'
+
 f = open('../label/sample_result.txt','r')
 datas = f.read().split('\n')
 labels = {}
+sample_num_to_node_id = {}
+
 for data in datas:
     if ',' in data:
         data = data.split(',')
@@ -349,78 +353,78 @@ for database_name in databases_name:
                             connect(process,filenode)        
 
         # 4.2 构图 - 注册表
-        reg_name_list = ['regkey_read','regkey_opened']
-        if 'behavior' in x and 'generic' in x['behavior']:
-            generics = x['behavior']['generic']
-            for generic in generics:
-                pro_name = generic['process_name'].replace(' .','.')
-                if pro_name=='lsass.exe':
-                    continue
+        # reg_name_list = ['regkey_read','regkey_opened']
+        # if 'behavior' in x and 'generic' in x['behavior']:
+        #     generics = x['behavior']['generic']
+        #     for generic in generics:
+        #         pro_name = generic['process_name'].replace(' .','.')
+        #         if pro_name=='lsass.exe':
+        #             continue
 
-                process = ''
-                # 可能是样本或子进程
-                if file_hash in pro_name:
-                    process = sample
-                elif pro_name in process_map:
-                    process = Nodes[process_map[pro_name]]
-                else:
-                    continue
+        #         process = ''
+        #         # 可能是样本或子进程
+        #         if file_hash in pro_name:
+        #             process = sample
+        #         elif pro_name in process_map:
+        #             process = Nodes[process_map[pro_name]]
+        #         else:
+        #             continue
 
-                if 'summary' in generic:
-                    for reg_type in reg_name_list:
-                        if reg_type not in generic['summary']:
-                            continue
-                        for reg in generic['summary'][reg_type]:
-                            if file_hash in reg:
-                                continue
-                            if '{' in reg and '}' in reg:
-                                reg = re.findall('{(.*?)}',reg)[0]
-                            else:
-                                continue
-                            # if '\\\\' in reg or 'C:\\' in reg or '\\' in reg:
-                            #     reg = re.findall('\\\\([^\\\\]*)$',reg)[0]
-                            # if file_hash in reg or len(reg)>15:
-                            #     continue
-                            if reg not in reg_list:
-                                reg_list.add(reg)
-                                reg_map[reg] = len(Nodes)
-                                regnode = Node(len(Nodes),reg,'reg','',-1,'')
-                                Nodes.append(regnode)
-                            else:
-                                regnode = Nodes[reg_map[reg]]
-                            connect(process,regnode)
+        #         if 'summary' in generic:
+        #             for reg_type in reg_name_list:
+        #                 if reg_type not in generic['summary']:
+        #                     continue
+        #                 for reg in generic['summary'][reg_type]:
+        #                     if file_hash in reg:
+        #                         continue
+        #                     if '{' in reg and '}' in reg:
+        #                         reg = re.findall('{(.*?)}',reg)[0]
+        #                     else:
+        #                         continue
+        #                     # if '\\\\' in reg or 'C:\\' in reg or '\\' in reg:
+        #                     #     reg = re.findall('\\\\([^\\\\]*)$',reg)[0]
+        #                     # if file_hash in reg or len(reg)>15:
+        #                     #     continue
+        #                     if reg not in reg_list:
+        #                         reg_list.add(reg)
+        #                         reg_map[reg] = len(Nodes)
+        #                         regnode = Node(len(Nodes),reg,'reg','',-1,'')
+        #                         Nodes.append(regnode)
+        #                     else:
+        #                         regnode = Nodes[reg_map[reg]]
+        #                     connect(process,regnode)
 
         # 4.3 构图 - memory 内存加载程序
-        if 'behavior' in x and 'generic' in x['behavior']:
-            generics = x['behavior']['generic']
-            for generic in generics:
-                pro_name = generic['process_name'].replace(' .','.')
-                if pro_name=='lsass.exe':
-                    continue
+        # if 'behavior' in x and 'generic' in x['behavior']:
+        #     generics = x['behavior']['generic']
+        #     for generic in generics:
+        #         pro_name = generic['process_name'].replace(' .','.')
+        #         if pro_name=='lsass.exe':
+        #             continue
 
-                process = ''
-                # 可能是样本或子进程
-                if file_hash in pro_name:
-                    process = sample
-                elif pro_name in process_map:
-                    process = Nodes[process_map[pro_name]]
-                else:
-                    continue
+        #         process = ''
+        #         # 可能是样本或子进程
+        #         if file_hash in pro_name:
+        #             process = sample
+        #         elif pro_name in process_map:
+        #             process = Nodes[process_map[pro_name]]
+        #         else:
+        #             continue
 
-                if 'summary' in generic and 'dll_loaded' in generic['summary']:
-                    for memory in generic['summary']['dll_loaded']:
-                        if '\\\\' in memory or 'C:\\' in memory or '\\' in memory:
-                            memory = re.findall('\\\\([^\\\\]*)$',memory)[0]
-                        if file_hash in memory or len(memory)>15:
-                            continue
-                        if memory not in memory_list:
-                            memory_list.add(memory)
-                            memory_map[memory] = len(Nodes)
-                            memorynode = Node(len(Nodes),memory,'memory','',-1,'')
-                            Nodes.append(memorynode)
-                        else:
-                            memorynode = Nodes[memory_map[memory]]
-                        connect(process,memorynode)
+        #         if 'summary' in generic and 'dll_loaded' in generic['summary']:
+        #             for memory in generic['summary']['dll_loaded']:
+        #                 if '\\\\' in memory or 'C:\\' in memory or '\\' in memory:
+        #                     memory = re.findall('\\\\([^\\\\]*)$',memory)[0]
+        #                 if file_hash in memory or len(memory)>15:
+        #                     continue
+        #                 if memory not in memory_list:
+        #                     memory_list.add(memory)
+        #                     memory_map[memory] = len(Nodes)
+        #                     memorynode = Node(len(Nodes),memory,'memory','',-1,'')
+        #                     Nodes.append(memorynode)
+        #                 else:
+        #                     memorynode = Nodes[memory_map[memory]]
+        #                 connect(process,memorynode)
 
         # 4.4 构图 - 签名
         if 'signatures' in x:
@@ -497,7 +501,7 @@ for database_name in databases_name:
             sample_node = Node(len(Nodes),file_hash,'process','',-1,'')
             Nodes.append(sample_node)
             logging.warn('出现了sample没有key的情况')
-
+        sample_num_to_node_id[sample.num] = sample_node.num
 
     print(f"in database {database_name}")
 
@@ -516,6 +520,9 @@ with open(NODE_OUTPUT_PATH, 'wb') as fr:
 
 with open(SAMPLE_LIST_OUTPUT_PATH, 'wb') as fr:
     pickle.dump(sample_list, fr)
+
+with open(SAMPLE_NUM_TO_NODE_ID_PATH, 'wb') as f:
+    pickle.dump(sample_num_to_node_id, f)
 
 
 today=datetime.date.today()
