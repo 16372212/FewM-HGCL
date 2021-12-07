@@ -11,13 +11,21 @@ import re
 import datetime
 import pickle
 import logging
+<<<<<<< HEAD
 import copy
+=======
+
+>>>>>>> af4f17e (add gcc)
 
 GRAPH_OUTPUT_PATH = './graph.pkl'
 NODE_OUTPUT_PATH = './nodes.pkl'
 SAMPLE_LIST_OUTPUT_PATH = './sample_list.pkl'
+<<<<<<< HEAD
 SAMPLE_SAMPLE_NUM_TO_NODE_ID = './sample_num_to_node_id.pkl'
 f = open('../label/sample_result.txt', 'r')
+=======
+f = open('../label/sample_result.txt','r')
+>>>>>>> af4f17e (add gcc)
 datas = f.read().split('\n')
 labels = {}
 for data in datas:
@@ -33,6 +41,7 @@ for data in datas:
 f.close()
 print('Loaded Labels')
 
+<<<<<<< HEAD
 with open('../mid_data/api_index_map.pkl', 'rb') as fr:
     api_index_matrix = pickle.load(fr)
 
@@ -41,18 +50,38 @@ MAX_API_NUM = 50
 
 class Sample:
     def __init__(self, num, name, label, family):  # ,label_code,family_code):
+=======
+
+with open('../mid_data/api_index_map.pkl', 'rb') as fr:
+    api_index_matrix = pickle.load(fr)
+
+
+MAX_API_NUM = 50
+
+class Sample:
+    def __init__(self,num,name,label,family):#,label_code,family_code):
+>>>>>>> af4f17e (add gcc)
         self.num = num
         self.name = name
         self.label = label
         self.family = family
+<<<<<<< HEAD
         self.key = ''  # 新加的
+=======
+        self.key = '' # 新加的
+>>>>>>> af4f17e (add gcc)
         # self.label_code = label_code
         # self.family_code = family_code
         # num 编号, name file_hash, label 大类, family 小类,两个code 编号
 
+<<<<<<< HEAD
 
 class Node:
     def __init__(self, num, name, type_, sample, pid, key):
+=======
+class Node:
+    def __init__(self,num,name,type_,sample,pid,key):
+>>>>>>> af4f17e (add gcc)
         self.num = num
         self.name = name
         self.type_ = type_
@@ -84,6 +113,7 @@ def analyze_nodes():
             type_dict[Nodes[i].type_] += 1
 
     for type_num in type_dict:
+<<<<<<< HEAD
         print(f'{type_num} : {type_dict[type_num]}')
 
 
@@ -106,6 +136,16 @@ def ana_total_labels():
     print(f'total sample num: {len(labels)}')
     label_dict = {}
     family_dict = {}
+=======
+        print(f'{type_num} : {type_dict[type_num]}')     
+
+
+def ana_labels():
+    print('------------analyze labels------------')
+    print(f'total sample num: {len(labels)}')
+    label_dict = {}
+    family_dict = {} 
+>>>>>>> af4f17e (add gcc)
 
     for file_hash in labels:
         if labels[file_hash]['label'] not in label_dict:
@@ -116,8 +156,14 @@ def ana_total_labels():
         if labels[file_hash]['family'] not in family_dict:
             family_dict[labels[file_hash]['family']] = []
 
+<<<<<<< HEAD
         family_dict[labels[file_hash]['family']].append(1)  # [labels[file_hash]['label']] = 1
 
+=======
+        family_dict[labels[file_hash]['family']].append(1) # [labels[file_hash]['label']] = 1
+
+    
+>>>>>>> af4f17e (add gcc)
     print(f'total label category : {len(label_dict)}')
     print(label_dict)
     # for label in label_dict:
@@ -125,18 +171,32 @@ def ana_total_labels():
 
     print()
     print(f'total family category : {len(family_dict)}')
+<<<<<<< HEAD
 
     # for fam in family_dict:
     #     print(f'family {fam} num : {len(family_dict[fam])}')
 
     print(f'total samples in sample_list: {len(sample_list)}')
+=======
+    
+    # for fam in family_dict:
+    #     print(f'family {fam} num : {len(family_dict[fam])}')
+
+    print(f'total samples in sample_list: {len(sample_list)}') 
+>>>>>>> af4f17e (add gcc)
 
 
 ## 深搜遍历，用于连接样本、进程
 ## 逻辑： sample 和 子process连接, 子process 之间相互可能连接
+<<<<<<< HEAD
 def dfs(process, sample):
     process_name = process['process_name'].replace(' .', '.')
     if process_name == 'cmd.exe':
+=======
+def dfs(process,sample):
+    process_name = process['process_name'].replace(' .','.')
+    if process_name=='cmd.exe':
+>>>>>>> af4f17e (add gcc)
         return None
     current = ''
     # 当前process 是样本本身
@@ -147,17 +207,26 @@ def dfs(process, sample):
         if process_name not in process_list:
             process_list.append(process_name)
             process_map[process_name] = len(Nodes)
+<<<<<<< HEAD
             pronode = Node(len(Nodes), process_name, 'process', '', 0, '')
+=======
+            pronode = Node(len(Nodes),process_name,'process','',0,'')
+>>>>>>> af4f17e (add gcc)
             Nodes.append(pronode)
         else:
             # pronode 赋值为 原有已建立好的节点
             pronode = Nodes[process_map[process_name]]
         current = pronode
+<<<<<<< HEAD
         connect(sample, pronode)  # 为啥这个要链接
+=======
+        connect(sample,pronode) # 为啥这个要链接
+>>>>>>> af4f17e (add gcc)
 
     if 'children' in process:
         # dfs遍历所有子节点
         for children in process['children']:
+<<<<<<< HEAD
             childnode = dfs(children, sample)
             # 如果子节点不是sample样本本身，则建立新的连接
             if childnode:
@@ -165,6 +234,15 @@ def dfs(process, sample):
                 # ******** 适当修改
                 # connect(current,childnode)
 
+=======
+            childnode = dfs(children,sample)
+            # 如果子节点不是sample样本本身，则建立新的连接
+            if childnode:
+                connect(sample,childnode)
+                # ******** 适当修改
+                # connect(current,childnode)
+                
+>>>>>>> af4f17e (add gcc)
     # 若当前节点是样本本身，则不返回内容，以免重复连接
     if current != sample:
         return current
@@ -173,9 +251,15 @@ def dfs(process, sample):
 
 ## 深搜遍历，用于连接样本、进程
 ## 逻辑： sample 和 子process连接, 子process 之间相互可能连接
+<<<<<<< HEAD
 def old_dfs(process, sample):
     process_name = process['process_name'].replace(' .', '.')
     if process_name == 'cmd.exe':
+=======
+def old_dfs(process,sample):
+    process_name = process['process_name'].replace(' .','.')
+    if process_name=='cmd.exe':
+>>>>>>> af4f17e (add gcc)
         return None
     current = ''
     # 当前process 是样本本身
@@ -186,7 +270,11 @@ def old_dfs(process, sample):
         if process_name not in process_list:
             process_list.append(process_name)
             process_map[process_name] = len(Nodes)
+<<<<<<< HEAD
             pronode = Node(len(Nodes), process_name, 'process', '', '')
+=======
+            pronode = Node(len(Nodes),process_name,'process','','')
+>>>>>>> af4f17e (add gcc)
             Nodes.append(pronode)
         else:
             # pronode 赋值为 原有已建立好的节点
@@ -196,10 +284,17 @@ def old_dfs(process, sample):
     if 'children' in process:
         # dfs遍历所有子节点
         for children in process['children']:
+<<<<<<< HEAD
             childnode = dfs(children, sample)
             # 如果子节点不是sample样本本身，则建立新的连接
             if childnode:
                 connect(current, childnode)
+=======
+            childnode = dfs(children,sample)
+            # 如果子节点不是sample样本本身，则建立新的连接
+            if childnode:
+                connect(current,childnode)
+>>>>>>> af4f17e (add gcc)
     # 若当前节点是样本本身，则不返回内容，以免重复连接
     if current != sample:
         return current
@@ -230,6 +325,7 @@ def old_dfs(process, sample):
 
 
 ## 连接操作
+<<<<<<< HEAD
 def connect(node1, node2):
     if node1.num == node2.num and type(node1) != Sample:
         return
@@ -244,6 +340,16 @@ def connect(node1, node2):
     if type(node1) == Sample:
         key = 's' + key
         node1.key = key  # 新设置的key
+=======
+def connect(node1,node2):
+    if node1.num == node2.num:
+        return
+
+    key = str(node1.num)
+    if type(node1) == Sample:
+        key = 's' + key
+        node1.key = key # 新设置的key
+>>>>>>> af4f17e (add gcc)
 
     if key not in graph:
         graph[key] = {}
@@ -266,13 +372,22 @@ def connect(node1, node2):
     #     graph[node2.num][node1.type_].add(node1.num)
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> af4f17e (add gcc)
 graph = {}
 Nodes = []
 ip = "192.168.105.224"
 port = 27017
 # database_name = "cuckoo_nfs_db2"
 collection_name = "analysis"
+<<<<<<< HEAD
 client = pymongo.MongoClient(host=ip, port=port, unicode_decode_error_handler='ignore')
+=======
+client = pymongo.MongoClient(host=ip, port=port,unicode_decode_error_handler='ignore')
+>>>>>>> af4f17e (add gcc)
 dblist = client.list_database_names()
 # collections = client[database_name][collection_name]
 
@@ -282,9 +397,12 @@ dblist = client.list_database_names()
 # 用于存储所有的sample
 sample_list = []
 
+<<<<<<< HEAD
 # 用来存储所有的sample_num 与 node_id的对应关系
 sample_num_to_node_id = {}
 
+=======
+>>>>>>> af4f17e (add gcc)
 # list用于存储所有的Node实体名称(唯一标识),用于快速检测是否存在,是否需要重新创建新的Node;
 # map对应 {实体 Node: 编号 id},用于快速检索在graph中的位置
 process_list = []
@@ -300,6 +418,7 @@ sign_map = {}
 network_list = set()
 network_map = {}
 
+<<<<<<< HEAD
 sample_label = {}  # 用来存储所有的sample对应的list
 MAX_FAMILY_NUM_THREAD = 20
 
@@ -312,10 +431,20 @@ for database_name in databases_name:
     call_collection = client['db_calls'][dbcalls_dict[database_name]]
     cursor = collections.find(no_cursor_timeout=True)
     for x in cursor:
+=======
+databases_name = ["cuckoo_nfs_db", "cuckoo_nfs_db2"] #,"cuckoo_nfs_db3","cuckoo_nfs_db4","cuckoo_nfs_db5"]
+dbcalls_dict = {'cuckoo_nfs_db':'from_nfs_db1', 'cuckoo_nfs_db2':'from_nfs_db2', 'cuckoo_nfs_db3':'from_nfs_db3', 'cuckoo_nfs_db4':'from_nfs_db4'}
+for database_name in databases_name:
+    collections = client[database_name][collection_name]
+    file_collection = client[database_name]['report_id_to_file'] # 获取所有的file, hash映射，可以看作一个dict
+    call_collection = client['db_calls'][dbcalls_dict[database_name]] 
+    for x in collections.find(): # x中只有id没有hash
+>>>>>>> af4f17e (add gcc)
         # 进程list,包括样本
         file_hash = ''
 
         # 1.获取hash
+<<<<<<< HEAD
         rows = file_collection.find(filter={'_id': str(x['_id'])})
         for row in rows:
             file_hash = row['file_hash']
@@ -335,11 +464,22 @@ for database_name in databases_name:
 
         # 2.建立sample节点，并放入sample_list中
         sample = Sample(len(sample_list), file_hash, labels[file_hash]['label'], labels[file_hash]['family'])
+=======
+        rows = file_collection.find(filter={'_id':str(x['_id'])})
+        for row in rows:
+            file_hash = row['file_hash'] 
+        if file_hash not in labels:
+            continue
+
+        # 2.建立sample节点，并放入sample_list中
+        sample = Sample(len(sample_list),file_hash,labels[file_hash]['label'],labels[file_hash]['family'])
+>>>>>>> af4f17e (add gcc)
         sample_list.append(sample)
 
         # 3.构图 - 进程
         if 'behavior' in x and 'processtree' in x['behavior']:
             processtree = x['behavior']['processtree']
+<<<<<<< HEAD
             del (processtree[0])
             for process in processtree:
                 dfs(process, sample)
@@ -350,6 +490,18 @@ for database_name in databases_name:
             generics = x['behavior']['generic']
             for generic in generics:
                 pro_name = generic['process_name'].replace(' .', '.')
+=======
+            del(processtree[0])
+            for process in processtree:
+                dfs(process,sample)
+
+        # 4.1 构图 - 文件
+        file_name_list = ['file_created','file_written']
+        if 'behavior' in x and 'generic' in x['behavior']:
+            generics = x['behavior']['generic']
+            for generic in generics:
+                pro_name = generic['process_name'].replace(' .','.')
+>>>>>>> af4f17e (add gcc)
                 if pro_name == 'lsass.exe':
                     continue
 
@@ -371,18 +523,29 @@ for database_name in databases_name:
                                 continue
 
                             if '\\\\' in file or 'C:\\' in file or 'c:\\' in file:
+<<<<<<< HEAD
                                 file = re.findall('\\\\([^\\\\]*)$', file)[0]
                             file = file.replace(' .', '.')
                             if len(file) > 15 or ' ' in file or '.' not in file or '.tmp' in file or '.dll' in file:
+=======
+                                file = re.findall('\\\\([^\\\\]*)$',file)[0]
+                            file = file.replace(' .','.')
+                            if len(file)>15 or ' ' in file or '.' not in file or '.tmp' in file or '.dll' in file:
+>>>>>>> af4f17e (add gcc)
                                 continue
                             if file not in file_list:
                                 file_list.add(file)
                                 file_map[file] = len(Nodes)
+<<<<<<< HEAD
                                 filenode = Node(len(Nodes), file, 'file', '', -1, '')
+=======
+                                filenode = Node(len(Nodes),file,'file','',-1,'')
+>>>>>>> af4f17e (add gcc)
                                 Nodes.append(filenode)
                             else:
                                 filenode = Nodes[file_map[file]]
 
+<<<<<<< HEAD
                             connect(process, filenode)
 
 
@@ -393,6 +556,17 @@ for database_name in databases_name:
             for generic in generics:
                 pro_name = generic['process_name'].replace(' .', '.')
                 if pro_name == 'lsass.exe':
+=======
+                            connect(process,filenode)        
+
+        # 4.2 构图 - 注册表
+        reg_name_list = ['regkey_read','regkey_opened']
+        if 'behavior' in x and 'generic' in x['behavior']:
+            generics = x['behavior']['generic']
+            for generic in generics:
+                pro_name = generic['process_name'].replace(' .','.')
+                if pro_name=='lsass.exe':
+>>>>>>> af4f17e (add gcc)
                     continue
 
                 process = ''
@@ -412,7 +586,11 @@ for database_name in databases_name:
                             if file_hash in reg:
                                 continue
                             if '{' in reg and '}' in reg:
+<<<<<<< HEAD
                                 reg = re.findall('{(.*?)}', reg)[0]
+=======
+                                reg = re.findall('{(.*?)}',reg)[0]
+>>>>>>> af4f17e (add gcc)
                             else:
                                 continue
                             # if '\\\\' in reg or 'C:\\' in reg or '\\' in reg:
@@ -426,6 +604,7 @@ for database_name in databases_name:
                                 Nodes.append(regnode)
                             else:
                                 regnode = Nodes[reg_map[reg]]
+<<<<<<< HEAD
                             connect(process, regnode)
 
         # 4.3 构图 - memory 内存加载程序
@@ -475,6 +654,58 @@ for database_name in databases_name:
         #                 signnode = Nodes[sign_map[sign]]
         #             # 该特征直接与sample相连
         #             connect(sample, signnode)
+=======
+                            connect(process,regnode)
+
+        # 4.3 构图 - memory 内存加载程序
+        if 'behavior' in x and 'generic' in x['behavior']:
+            generics = x['behavior']['generic']
+            for generic in generics:
+                pro_name = generic['process_name'].replace(' .','.')
+                if pro_name=='lsass.exe':
+                    continue
+
+                process = ''
+                # 可能是样本或子进程
+                if file_hash in pro_name:
+                    process = sample
+                elif pro_name in process_map:
+                    process = Nodes[process_map[pro_name]]
+                else:
+                    continue
+
+                if 'summary' in generic and 'dll_loaded' in generic['summary']:
+                    for memory in generic['summary']['dll_loaded']:
+                        if '\\\\' in memory or 'C:\\' in memory or '\\' in memory:
+                            memory = re.findall('\\\\([^\\\\]*)$',memory)[0]
+                        if file_hash in memory or len(memory)>15:
+                            continue
+                        if memory not in memory_list:
+                            memory_list.add(memory)
+                            memory_map[memory] = len(Nodes)
+                            memorynode = Node(len(Nodes),memory,'memory','',-1,'')
+                            Nodes.append(memorynode)
+                        else:
+                            memorynode = Nodes[memory_map[memory]]
+                        connect(process,memorynode)
+
+        # 4.4 构图 - 签名
+        if 'signatures' in x:
+            signatures = x['signatures']
+            for signature in signatures:
+                if 'name' in signature:
+                    sign = signature['name']
+                    if sign not in sign_list:
+                        sign_list.add(sign)
+                        sign_map[sign] = len(Nodes)
+                        signnode = Node(len(Nodes),sign,'sign','',-1,'')
+                        Nodes.append(signnode)
+                    else:
+                        signnode = Nodes[sign_map[sign]]
+                    # 该特征直接与sample相连
+                    connect(sample,signnode)
+
+>>>>>>> af4f17e (add gcc)
 
         # 4.5 构图 - 网络
         network = []
@@ -496,6 +727,7 @@ for database_name in databases_name:
                 if net not in network_list:
                     network_list.add(net)
                     network_map[net] = len(Nodes)
+<<<<<<< HEAD
                     netnode = Node(len(Nodes), net, 'network', '', -1, '')
                     Nodes.append(netnode)
                 else:
@@ -504,10 +736,21 @@ for database_name in databases_name:
 
                 # 4.6构图 - 获取api节点，直接链接sample
         call_rows = call_collection.find(filter={'_id': x['_id']})
+=======
+                    netnode = Node(len(Nodes),net,'network','',-1,'')
+                    Nodes.append(netnode)
+                else:
+                    netnode = Nodes[network_map[net]]
+                connect(sample,netnode)        
+        
+        # 4.6构图 - 获取api节点，直接链接sample
+        call_rows = call_collection.find(filter={'_id':x['_id']})
+>>>>>>> af4f17e (add gcc)
         calls = {}
 
         for call_row in call_rows:
             calls = call_row['calls']
+<<<<<<< HEAD
 
         api_num = 0
         for call in calls:
@@ -515,12 +758,23 @@ for database_name in databases_name:
             if call not in api_index_matrix:
                 continue
             apinode = Node(len(Nodes), call, 'api', '', 0, '')  # 将api对应的转到id， 这个id不太对
+=======
+        
+        api_num = 0
+        for call in calls:
+            
+            # 先判断这个api是否在里面
+            if call not in api_index_matrix:
+                continue
+            apinode = Node(len(Nodes), call, 'api','',0,'') # 将api对应的转到id， 这个id不太对
+>>>>>>> af4f17e (add gcc)
             connect(sample, apinode)
             Nodes.append(apinode)
             api_num += 1
             if api_num > MAX_API_NUM:
                 # print(f'api num more than {MAX_API_NUM}')
                 break
+<<<<<<< HEAD
 
         # *****zz修改：******
         # 将sample也加到node里，因为sample也算是一种process，这样为了构造matrix方便。
@@ -540,6 +794,26 @@ for database_name in databases_name:
 
 analyze_nodes()
 ana_samples()
+=======
+        
+        
+        # *****zz修改：******
+        # 将sample也加到node里，因为sample也算是一种process，这样为了构造matrix方便。
+        
+        if sample.key != '':
+            sample_node = Node(len(Nodes),file_hash,'process','',-1,sample.key)
+            Nodes.append(sample_node)
+        else:
+            sample_node = Node(len(Nodes),file_hash,'process','',-1,'')
+            Nodes.append(sample_node)
+            logging.warn('出现了sample没有key的情况')
+
+
+    print(f"in database {database_name}")
+
+analyze_nodes()
+ana_labels()
+>>>>>>> af4f17e (add gcc)
 # print('graph:')
 # print(graph)
 
@@ -554,11 +828,17 @@ with open(NODE_OUTPUT_PATH, 'wb') as fr:
 with open(SAMPLE_LIST_OUTPUT_PATH, 'wb') as fr:
     pickle.dump(sample_list, fr)
 
+<<<<<<< HEAD
 with open(SAMPLE_SAMPLE_NUM_TO_NODE_ID, 'wb') as fr:
     pickle.dump(sample_num_to_node_id, fr)
 
 today = datetime.date.today()
 f = open(f'pre{today}.txt', 'a+', encoding='utf-8')
+=======
+
+today=datetime.date.today()
+f = open(f'pre{today}.txt','a+',encoding='utf-8')
+>>>>>>> af4f17e (add gcc)
 f.write(str(graph))
 f.write('\n')
 print("Write Graph Done")
@@ -573,8 +853,12 @@ print("Write Node Done")
 f.write('\nSample:\n')
 l = len(sample_list)
 for i in range(l):
+<<<<<<< HEAD
     f.write(str(sample_list[i].num) + "," + str(sample_list[i].name) + "," + str(sample_list[i].label) + "," + str(
         sample_list[i].family) + "\n")
+=======
+    f.write(str(sample_list[i].num) + "," + str(sample_list[i].name) + "," + str(sample_list[i].label) + "," + str(sample_list[i].family) + "\n")
+>>>>>>> af4f17e (add gcc)
 f.close()
 print("Write Sample Done")
 # for file in file_path
@@ -582,5 +866,8 @@ print("Write Sample Done")
 # n * m 维度, n 样本个数, m Node 节点个数 = process + file + reg + memory + sign + network 
 matrix = []
 
+<<<<<<< HEAD
 print('sample num to node id map: ')
 print(sample_num_to_node_id)
+=======
+>>>>>>> af4f17e (add gcc)

@@ -24,6 +24,7 @@ from gcc.datasets import (
     NodeClassificationDataset,
     NodeClassificationDatasetLabeled,
     worker_init_fn,
+    MyGraphClassificationDataset,
 )
 from gcc.datasets.data_util import batcher
 from gcc.models import GraphEncoder
@@ -75,7 +76,7 @@ def main(args_test):
     args.device = torch.device("cpu") if args.gpu is None else torch.device(args.gpu)
 
     if args_test.dataset in GRAPH_CLASSIFICATION_DSETS or args_test.dataset=='mydataset':
-        train_dataset = GraphClassificationDataset(
+        train_dataset = MyGraphClassificationDataset(
             dataset=args_test.dataset,
             rw_hops=args.rw_hops,
             subgraph_size=args.subgraph_size,

@@ -3,14 +3,16 @@
 # File Name: train_graph_moco.py
 # Author: Jiezhong Qiu
 # Create Time: 2019/12/13 16:44
+# TODO:
 
 import argparse
 import copy
 import os
 import time
 import warnings
-
+import sys
 import dgl
+import time
 import numpy as np
 import psutil
 import torch
@@ -31,6 +33,7 @@ from gcc.datasets import (
     LoadBalanceGraphDataset,
     NodeClassificationDataset,
     NodeClassificationDatasetLabeled,
+    MyGraphClassificationDataset,
     worker_init_fn,
 )
 from gcc.datasets.data_util import batcher, labeled_batcher
@@ -38,7 +41,8 @@ from gcc.models import GraphEncoder
 from gcc.utils.misc import AverageMeter, adjust_learning_rate, warmup_linear
 # from gcc.gen_my_datasets import matrix_to_dgl
 # from matrix_to_dgl import Sample
-
+root_path = os.path.abspath("./")
+sys.path.append(root_path)
 
 
 
@@ -125,6 +129,7 @@ def parse_option():
     parser.add_argument("--cv", action="store_true")
     # fmt: on
 
+    parser.add_argument("--r", type=float, default=0.15, help="masking value",choices=[0.3, 0.15])
     opt = parser.parse_args()
 
     iterations = opt.lr_decay_epochs.split(",")
@@ -136,7 +141,7 @@ def parse_option():
 
 
 def option_update(opt):
-    opt.model_name = "{}_moco_{}_{}_{}_layer_{}_lr_{}_decay_{}_bsz_{}_hid_{}_samples_{}_nce_t_{}_nce_k_{}_rw_hops_{}_restart_prob_{}_aug_{}_ft_{}_deg_{}_pos_{}_momentum_{}".format(
+    opt.model_name = "{}_moco_{}_{}_{}_layer_{}_lr_{}_decay_{}_bsz_{}_hid_{}_samples_{}_nce_t_{}_nce_k_{}_rw_hops_{}_restart_prob_{}_aug_{}_ft_{}_deg_{}_pos_{}_momentum_{}_r{}".format(
         opt.exp,
         opt.moco,
         opt.dataset,
@@ -156,6 +161,7 @@ def option_update(opt):
         opt.degree_embedding_size,
         opt.positional_embedding_size,
         opt.alpha,
+        opt.r,
     )
 
     if opt.load_path is None:
@@ -302,6 +308,8 @@ def train_finetune(
             f1_meter.reset()
             graph_size.reset()
             max_num_nodes, max_num_edges = 0, 0
+        print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))       # 打印按指定格式排版的时间
+
     return epoch_loss_meter.avg, epoch_f1_meter.avg
 
 
@@ -361,6 +369,8 @@ def train_moco(
     """
     one epoch training for moco
     """
+    print(f'========================one epoch===========================')
+    print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))       # 打印按指定格式排版的时间
     n_batch = train_loader.dataset.total // opt.batch_size
     print(f'n_batch is {n_batch}, train_loader.dataset.total:{train_loader.dataset.total}, batch_size:{opt.batch_size}')
     model.train()
@@ -385,7 +395,7 @@ def train_moco(
 
     end = time.time()
     for idx, batch in enumerate(train_loader):
-        print(f'==============train.py: {idx}=======================')
+        # print(f'==============train.py: {idx}=======================')
         data_time.update(time.time() - end)
         graph_q, graph_k = batch
         # 如果是pretrain, 就还没遇到对比部分，先把所有的子图都通过这个训练得到emb模型
@@ -490,6 +500,7 @@ def train_moco(
             graph_size.reset()
             gnorm_meter.reset()
             max_num_nodes, max_num_edges = 0, 0
+    print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))       # 打印按指定格式排版的时间
     return epoch_loss_meter.avg
 
 
@@ -574,7 +585,7 @@ def main(args):
     else: 
         if args.dataset in GRAPH_CLASSIFICATION_DSETS or args.dataset=="mydataset":
             # 目标，将这里改成自己的model结构. 一次加载的train_dataset太少了。（或修改成师姐要求的个数）
-            train_dataset = GraphClassificationDataset(
+            train_dataset = MyGraphClassificationDataset(
                 dataset=args.dataset,
                 rw_hops=args.rw_hops, # 256
                 subgraph_size=args.subgraph_size, # 128

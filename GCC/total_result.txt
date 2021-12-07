@@ -1,0 +1,162 @@
+layer: 4 batch_size: 32 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7188118811881188, 'precision': 0.7561084853239246, 'recall': 0.7188118811881188, 'f1-score': 0.7176475920437299}, 'big_label_result': {'acc': 0.6252475247524752, 'precision': 0.6489731453257113, 'recall': 0.6252475247524752, 'f1-score': 0.6197765641757469}}
+
+layer: 4 batch_size: 32 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7262376237623762, 'precision': 0.762974947952608, 'recall': 0.7262376237623762, 'f1-score': 0.7249575923889657}, 'big_label_result': {'acc': 0.6247524752475248, 'precision': 0.6471626777144744, 'recall': 0.6247524752475248, 'f1-score': 0.6181231147875452}}
+
+layer: 4 batch_size: 32 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.7811881188118812, 'precision': 0.810916113835794, 'recall': 0.7811881188118812, 'f1-score': 0.7854583027957365}, 'big_label_result': {'acc': 0.7004950495049505, 'precision': 0.7146013860654358, 'recall': 0.7004950495049505, 'f1-score': 0.6975481570577314}}
+
+layer: 4 batch_size: 32 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.7980198019801981, 'precision': 0.8255557192567688, 'recall': 0.7980198019801981, 'f1-score': 0.801512691399438}, 'big_label_result': {'acc': 0.6841584158415842, 'precision': 0.6941815351365082, 'recall': 0.6841584158415842, 'f1-score': 0.6792776129874593}}
+
+layer: 4 batch_size: 32 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.24356435643564356, 'precision': 0.1517123744222157, 'recall': 0.24356435643564356, 'f1-score': 0.16994233623319496}, 'big_label_result': {'acc': 0.3410891089108911, 'precision': 0.24392662777120044, 'recall': 0.3410891089108911, 'f1-score': 0.208311324658524}}
+
+layer: 4 batch_size: 32 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.23564356435643563, 'precision': 0.1380564178836393, 'recall': 0.23564356435643563, 'f1-score': 0.15840716111515427}, 'big_label_result': {'acc': 0.3465346534653465, 'precision': 0.3245645400729812, 'recall': 0.3465346534653465, 'f1-score': 0.21637265557576305}}
+
+layer: 4 batch_size: 64 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7673267326732673, 'precision': 0.799644532519148, 'recall': 0.7673267326732673, 'f1-score': 0.766842095891759}, 'big_label_result': {'acc': 0.6603960396039604, 'precision': 0.6865220217306964, 'recall': 0.6603960396039604, 'f1-score': 0.6572615288276178}}
+
+layer: 4 batch_size: 64 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7544554455445545, 'precision': 0.7818970758059387, 'recall': 0.7544554455445545, 'f1-score': 0.7527609773684713}, 'big_label_result': {'acc': 0.6321782178217822, 'precision': 0.6535273487983003, 'recall': 0.6321782178217822, 'f1-score': 0.6257611478630505}}
+
+layer: 4 batch_size: 64 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.7886138613861386, 'precision': 0.8157174323030415, 'recall': 0.7886138613861386, 'f1-score': 0.7915951389692133}, 'big_label_result': {'acc': 0.7069306930693069, 'precision': 0.7234039676834958, 'recall': 0.7069306930693069, 'f1-score': 0.7051818843473155}}
+
+layer: 4 batch_size: 64 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.7816831683168317, 'precision': 0.8026047300034984, 'recall': 0.7816831683168317, 'f1-score': 0.7819451896218147}, 'big_label_result': {'acc': 0.6851485148514852, 'precision': 0.7062736138969893, 'recall': 0.6851485148514852, 'f1-score': 0.6822787445630292}}
+
+layer: 4 batch_size: 64 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.18712871287128713, 'precision': 0.0971048580544813, 'recall': 0.18712871287128713, 'f1-score': 0.10931063547329936}, 'big_label_result': {'acc': 0.32821782178217823, 'precision': 0.22049548227900287, 'recall': 0.32821782178217823, 'f1-score': 0.17616535254829124}}
+
+layer: 4 batch_size: 64 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.1910891089108911, 'precision': 0.10676273753275327, 'recall': 0.1910891089108911, 'f1-score': 0.11737705151496197}, 'big_label_result': {'acc': 0.3465346534653465, 'precision': 0.30348493091067347, 'recall': 0.3465346534653465, 'f1-score': 0.20736368875797365}}
+
+layer: 4 batch_size: 96 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7207920792079208, 'precision': 0.7524917032063961, 'recall': 0.7207920792079208, 'f1-score': 0.7161782729525059}, 'big_label_result': {'acc': 0.6123762376237624, 'precision': 0.6410672563364409, 'recall': 0.6123762376237624, 'f1-score': 0.6046508500574177}}
+
+layer: 4 batch_size: 96 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7168316831683168, 'precision': 0.7555654938200315, 'recall': 0.7168316831683168, 'f1-score': 0.7136007574790307}, 'big_label_result': {'acc': 0.6188118811881188, 'precision': 0.6488979553903848, 'recall': 0.6188118811881188, 'f1-score': 0.6113111259087317}}
+
+layer: 4 batch_size: 96 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.4777227722772277, 'precision': 0.46003437183254886, 'recall': 0.4777227722772277, 'f1-score': 0.43286007845417823}, 'big_label_result': {'acc': 0.4034653465346535, 'precision': 0.4326643952633024, 'recall': 0.4034653465346535, 'f1-score': 0.3213025740631791}}
+
+layer: 4 batch_size: 96 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.47475247524752473, 'precision': 0.4363851886451863, 'recall': 0.47475247524752473, 'f1-score': 0.42386233308744736}, 'big_label_result': {'acc': 0.3891089108910891, 'precision': 0.4031151291771324, 'recall': 0.3891089108910891, 'f1-score': 0.2888955563594248}}
+
+layer: 4 batch_size: 96 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.24752475247524752, 'precision': 0.18462795653448388, 'recall': 0.24752475247524752, 'f1-score': 0.187095484213657}, 'big_label_result': {'acc': 0.32772277227722774, 'precision': 0.18966168656845184, 'recall': 0.32772277227722774, 'f1-score': 0.1826875818927712}}
+
+layer: 4 batch_size: 96 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.22623762376237624, 'precision': 0.1408733170100424, 'recall': 0.22623762376237624, 'f1-score': 0.15351187096162122}, 'big_label_result': {'acc': 0.3297029702970297, 'precision': 0.23980918020768138, 'recall': 0.3297029702970297, 'f1-score': 0.17619241222331325}}
+
+layer: 5 batch_size: 32 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7599009900990099, 'precision': 0.7980234059102276, 'recall': 0.7599009900990099, 'f1-score': 0.7650711252950526}, 'big_label_result': {'acc': 0.6698019801980198, 'precision': 0.6869603068293785, 'recall': 0.6698019801980198, 'f1-score': 0.6669824844996752}}
+
+layer: 5 batch_size: 32 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7613861386138614, 'precision': 0.7982580485150556, 'recall': 0.7613861386138614, 'f1-score': 0.7650806585316526}, 'big_label_result': {'acc': 0.651980198019802, 'precision': 0.669464548059934, 'recall': 0.651980198019802, 'f1-score': 0.6477118640704894}}
+
+layer: 5 batch_size: 32 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.7579207920792079, 'precision': 0.786593357930057, 'recall': 0.7579207920792079, 'f1-score': 0.7594886544594733}, 'big_label_result': {'acc': 0.6638613861386139, 'precision': 0.6772332585170482, 'recall': 0.6638613861386139, 'f1-score': 0.6579030132191501}}
+
+layer: 5 batch_size: 32 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.7658415841584159, 'precision': 0.7917302132728956, 'recall': 0.7658415841584159, 'f1-score': 0.7620285584940366}, 'big_label_result': {'acc': 0.6425742574257426, 'precision': 0.6571760971553323, 'recall': 0.6425742574257426, 'f1-score': 0.63829620580773}}
+
+layer: 5 batch_size: 32 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.24504950495049505, 'precision': 0.15563135980660492, 'recall': 0.24504950495049505, 'f1-score': 0.16423035134559166}, 'big_label_result': {'acc': 0.3425742574257426, 'precision': 0.3011450778726867, 'recall': 0.3425742574257426, 'f1-score': 0.20246219250371184}}
+
+layer: 5 batch_size: 32 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.25396039603960396, 'precision': 0.179189975452091, 'recall': 0.25396039603960396, 'f1-score': 0.17996708864553443}, 'big_label_result': {'acc': 0.35247524752475246, 'precision': 0.3897065110091879, 'recall': 0.35247524752475246, 'f1-score': 0.2240529517126822}}
+
+layer: 5 batch_size: 64 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7881188118811882, 'precision': 0.8201085593058245, 'recall': 0.7881188118811882, 'f1-score': 0.791892872747611}, 'big_label_result': {'acc': 0.6851485148514852, 'precision': 0.7099487996278478, 'recall': 0.6851485148514852, 'f1-score': 0.6825571369662958}}
+
+layer: 5 batch_size: 64 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7628712871287129, 'precision': 0.8036448591189951, 'recall': 0.7628712871287129, 'f1-score': 0.7659006046383364}, 'big_label_result': {'acc': 0.6574257425742575, 'precision': 0.6869543866695332, 'recall': 0.6574257425742575, 'f1-score': 0.6556601284344081}}
+
+layer: 5 batch_size: 64 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.8054455445544555, 'precision': 0.8409861040870743, 'recall': 0.8054455445544555, 'f1-score': 0.8129771248853017}, 'big_label_result': {'acc': 0.7247524752475247, 'precision': 0.7385226613097291, 'recall': 0.7247524752475247, 'f1-score': 0.7238449424403506}}
+
+layer: 5 batch_size: 64 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.8282178217821782, 'precision': 0.8514324162612253, 'recall': 0.8282178217821782, 'f1-score': 0.8299482661702787}, 'big_label_result': {'acc': 0.7282178217821782, 'precision': 0.7422001398302317, 'recall': 0.7282178217821782, 'f1-score': 0.7279597157640585}}
+
+layer: 5 batch_size: 64 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.19207920792079208, 'precision': 0.1197546742093243, 'recall': 0.19207920792079208, 'f1-score': 0.11930697233216395}, 'big_label_result': {'acc': 0.347029702970297, 'precision': 0.31037663854554826, 'recall': 0.347029702970297, 'f1-score': 0.20838693729242355}}
+
+layer: 5 batch_size: 64 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.24405940594059405, 'precision': 0.15407862364533823, 'recall': 0.24405940594059405, 'f1-score': 0.16564344740435413}, 'big_label_result': {'acc': 0.3400990099009901, 'precision': 0.31201412915608123, 'recall': 0.3400990099009901, 'f1-score': 0.19789547887200612}}
+
+layer: 5 batch_size: 96 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7599009900990099, 'precision': 0.7984663763144936, 'recall': 0.7599009900990099, 'f1-score': 0.7624944493173103}, 'big_label_result': {'acc': 0.6732673267326733, 'precision': 0.7028827689479876, 'recall': 0.6732673267326733, 'f1-score': 0.6701969020499836}}
+
+layer: 5 batch_size: 96 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7485148514851485, 'precision': 0.7854427971719178, 'recall': 0.7485148514851485, 'f1-score': 0.7477610759039379}, 'big_label_result': {'acc': 0.6287128712871287, 'precision': 0.6510662374641716, 'recall': 0.6287128712871287, 'f1-score': 0.6206709612556244}}
+
+layer: 5 batch_size: 96 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.7316831683168317, 'precision': 0.758008318838991, 'recall': 0.7316831683168317, 'f1-score': 0.7273702459041481}, 'big_label_result': {'acc': 0.6252475247524752, 'precision': 0.6554462117211272, 'recall': 0.6252475247524752, 'f1-score': 0.6183174212732937}}
+
+layer: 5 batch_size: 96 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.7891089108910891, 'precision': 0.8091875051100351, 'recall': 0.7891089108910891, 'f1-score': 0.7894798365862226}, 'big_label_result': {'acc': 0.7103960396039604, 'precision': 0.7218047418488573, 'recall': 0.7103960396039604, 'f1-score': 0.7075707150962954}}
+
+layer: 5 batch_size: 96 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.2400990099009901, 'precision': 0.18008600946047762, 'recall': 0.2400990099009901, 'f1-score': 0.17989278804469483}, 'big_label_result': {'acc': 0.3336633663366337, 'precision': 0.3432020339860948, 'recall': 0.3336633663366337, 'f1-score': 0.1833638516620891}}
+
+layer: 5 batch_size: 96 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.2613861386138614, 'precision': 0.21238510628080434, 'recall': 0.2613861386138614, 'f1-score': 0.1993103250510949}, 'big_label_result': {'acc': 0.3455445544554455, 'precision': 0.3450871893826455, 'recall': 0.3455445544554455, 'f1-score': 0.20343235560635328}}
+
+layer: 6 batch_size: 32 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7277227722772277, 'precision': 0.7665261946702043, 'recall': 0.7277227722772277, 'f1-score': 0.7292177616865375}, 'big_label_result': {'acc': 0.6361386138613861, 'precision': 0.6599483387298781, 'recall': 0.6361386138613861, 'f1-score': 0.6302137121316437}}
+
+layer: 6 batch_size: 32 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7752475247524753, 'precision': 0.8124653207870306, 'recall': 0.7752475247524753, 'f1-score': 0.7798980233374609}, 'big_label_result': {'acc': 0.6727722772277228, 'precision': 0.685908703084868, 'recall': 0.6727722772277228, 'f1-score': 0.6688974747567181}}
+
+layer: 6 batch_size: 32 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.751980198019802, 'precision': 0.778814600582819, 'recall': 0.751980198019802, 'f1-score': 0.7522750682046272}, 'big_label_result': {'acc': 0.6613861386138614, 'precision': 0.6785137900902888, 'recall': 0.6613861386138614, 'f1-score': 0.6564002563171392}}
+
+layer: 6 batch_size: 32 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.7683168316831683, 'precision': 0.7989813049946547, 'recall': 0.7683168316831683, 'f1-score': 0.7699162039857022}, 'big_label_result': {'acc': 0.657920792079208, 'precision': 0.6736062746542033, 'recall': 0.657920792079208, 'f1-score': 0.6523127460451333}}
+
+layer: 6 batch_size: 32 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.20445544554455444, 'precision': 0.11935907501224126, 'recall': 0.20445544554455444, 'f1-score': 0.12583723770781166}, 'big_label_result': {'acc': 0.35198019801980196, 'precision': 0.3125008426248741, 'recall': 0.35198019801980196, 'f1-score': 0.21898938299305803}}
+
+layer: 6 batch_size: 32 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.24455445544554455, 'precision': 0.14584712688563822, 'recall': 0.24455445544554455, 'f1-score': 0.1670382714870958}, 'big_label_result': {'acc': 0.35148514851485146, 'precision': 0.3612037892491173, 'recall': 0.35148514851485146, 'f1-score': 0.22158834776682426}}
+
+layer: 6 batch_size: 64 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7371287128712871, 'precision': 0.7712257820721846, 'recall': 0.7371287128712871, 'f1-score': 0.7385236443714803}, 'big_label_result': {'acc': 0.6361386138613861, 'precision': 0.6575349406342016, 'recall': 0.6361386138613861, 'f1-score': 0.6299520416109344}}
+
+layer: 6 batch_size: 64 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.7717821782178218, 'precision': 0.8035064474870168, 'recall': 0.7717821782178218, 'f1-score': 0.7717738941138834}, 'big_label_result': {'acc': 0.656930693069307, 'precision': 0.6841751432694998, 'recall': 0.656930693069307, 'f1-score': 0.6548665191570073}}
+
+layer: 6 batch_size: 64 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.8094059405940595, 'precision': 0.8413855099405617, 'recall': 0.8094059405940595, 'f1-score': 0.8162661294795519}, 'big_label_result': {'acc': 0.7232673267326732, 'precision': 0.7445954108506356, 'recall': 0.7232673267326732, 'f1-score': 0.7220172829409172}}
+
+layer: 6 batch_size: 64 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.7811881188118812, 'precision': 0.8127380980339167, 'recall': 0.7811881188118812, 'f1-score': 0.7840486659458064}, 'big_label_result': {'acc': 0.6717821782178218, 'precision': 0.6999135250760806, 'recall': 0.6717821782178218, 'f1-score': 0.6686523596606992}}
+
+layer: 6 batch_size: 64 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.20693069306930692, 'precision': 0.13647470109736237, 'recall': 0.20693069306930692, 'f1-score': 0.13239753775925045}, 'big_label_result': {'acc': 0.347029702970297, 'precision': 0.3461057950471467, 'recall': 0.347029702970297, 'f1-score': 0.20699761146935694}}
+
+layer: 6 batch_size: 64 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.21138613861386138, 'precision': 0.1133100524502129, 'recall': 0.21138613861386138, 'f1-score': 0.12873952811221268}, 'big_label_result': {'acc': 0.35148514851485146, 'precision': 0.33796426474229, 'recall': 0.35148514851485146, 'f1-score': 0.21703749025697297}}
+
+layer: 6 batch_size: 96 lamda: 0.999 r0.3
+{'family_result': {'acc': 0.7608910891089109, 'precision': 0.7908547032007593, 'recall': 0.7608910891089109, 'f1-score': 0.7627456458850398}, 'big_label_result': {'acc': 0.6564356435643565, 'precision': 0.6860541467481842, 'recall': 0.6564356435643565, 'f1-score': 0.6538203245217351}}
+
+layer: 6 batch_size: 96 lamda: 0.999 r0.6
+{'family_result': {'acc': 0.755940594059406, 'precision': 0.7854095305746677, 'recall': 0.755940594059406, 'f1-score': 0.7576958536059151}, 'big_label_result': {'acc': 0.6589108910891089, 'precision': 0.6835592129082189, 'recall': 0.6589108910891089, 'f1-score': 0.6553609486767124}}
+
+layer: 6 batch_size: 96 lamda: 0.99 r0.3
+{'family_result': {'acc': 0.8094059405940595, 'precision': 0.8353812358327402, 'recall': 0.8094059405940595, 'f1-score': 0.8138276092435618}, 'big_label_result': {'acc': 0.7415841584158416, 'precision': 0.7608871903738075, 'recall': 0.7415841584158416, 'f1-score': 0.7417740419446353}}
+
+layer: 6 batch_size: 96 lamda: 0.99 r0.6
+{'family_result': {'acc': 0.8064356435643565, 'precision': 0.8291446115765767, 'recall': 0.8064356435643565, 'f1-score': 0.8077660607854922}, 'big_label_result': {'acc': 0.7173267326732673, 'precision': 0.7374892931183993, 'recall': 0.7173267326732673, 'f1-score': 0.716703312773646}}
+
+layer: 6 batch_size: 96 lamda: 0.9 r0.3
+{'family_result': {'acc': 0.31336633663366337, 'precision': 0.24801017513021845, 'recall': 0.31336633663366337, 'f1-score': 0.24714052458791777}, 'big_label_result': {'acc': 0.3336633663366337, 'precision': 0.30691414017178115, 'recall': 0.3336633663366337, 'f1-score': 0.18358621546778833}}
+
+layer: 6 batch_size: 96 lamda: 0.9 r0.6
+{'family_result': {'acc': 0.31386138613861386, 'precision': 0.2504220752584781, 'recall': 0.31386138613861386, 'f1-score': 0.24770676059435717}, 'big_label_result': {'acc': 0.3341584158415842, 'precision': 0.3540348739700456, 'recall': 0.3341584158415842, 'f1-score': 0.19019064004995212}}
+

@@ -7,7 +7,7 @@
 
 import io
 import itertools
-import os
+import os, sys
 import os.path as osp
 from collections import defaultdict, namedtuple
 
@@ -21,11 +21,18 @@ import torch
 import torch.nn.functional as F
 from dgl.data.tu import TUDataset
 from scipy.sparse import linalg
-from gcc.Sample import Sample
-from gcc.Sample import Node
-from gcc.datasets import data_util
-from gcc.gen_my_datasets.matrix_to_dgl import samples_to_dgl
-from gcc.gen_my_datasets.matrix_to_huge_dgl import get_saved_sample_subgraph
+# root_path = os.path.abspath("./")
+# sys.path.append(root_path)
+# from gcc.Sample import Sample
+# from gcc.Sample import Node
+# from gcc.gen_my_datasets.matrix_to_dgl import samples_to_dgl
+# from gcc.gen_my_datasets.matrix_to_huge_dgl import get_each_sample_subgraph
+from dgl.data.utils import load_graphs
+
+
+GRAPH_INPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_data.bin'
+GRAPH_AUG_INPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_aug_data.bin'
+
 
 def batcher():
     def batcher_dev(batch):
@@ -48,38 +55,17 @@ def labeled_batcher():
 Data = namedtuple("Data", ["x", "edge_index", "y"])
 
 
-def create_graph_classification_dataset(dataset_name):
+def create_graph_classification_dataset():
     """构建自己的dataset, 但是dataset貌似太少了"""
-    name_dict = {
-        "imdb-binary": "IMDB-BINARY",
-        "imdb-multi": "IMDB-MULTI",
-        "rdt-b": "REDDIT-BINARY",
-        "rdt-5k": "REDDIT-MULTI-5K",
-        "collab": "COLLAB",
-    }
-    name = name_dict["imdb-binary"]
-    # print(f'【create_graph_classification_dataset】databse: name : {name}')
-    # dataset = TUDataset(name)
-    # print(f'【create_graph_classification_dataset】 : {dataset.graph_lists[:3]}')
-    # print(dir(dataset))
-    # dataset.num_labels = dataset.num_labels[0]
+    graph_k_list, label_lists = load_graphs(GRAPH_INPUT_PATH)
+    dataset = dict()
+    dataset['graph_k_lists'] = graph_k_list  # 原本子图
     
-    # dataset.graph_lists = samples_to_dgl()[0]
-    # dataset.num_labels = len(samples_to_dgl()[0])
-    # dataset.graph_labels = samples_to_dgl()[1]
-    
-    graph_k_list, graph_k_aug_dict, label_lists, graph_k_aug_list = get_saved_sample_subgraph()
-    # dataset.graph_lists = graph_k_aug_list
-    # dataset
-    # dataset.num_labels = len(graph_k_list)
-    # dataset.graph_labels = label_lists
-
-    dataset = {}
-    dataset['graph_k_lists'] = graph_k_list
-    dataset['graph_q_lists'] = graph_k_aug_list
-    dataset['num_labels'] = len(graph_k_list)
-    dataset['graph_labels'] = label_lists
-
+    dataset['num_labels'] = len(label_lists['glabel'])
+    dataset['graph_labels'] = label_lists['glabel']
+    dataset['graph_big_labels'] = label_lists['big_label']
+    dataset['q_to_k_index'] = label_lists['k_q_index']
+    dataset['k_qnum'] = label_lists['k_qnum']
     return dataset
 
 
@@ -167,6 +153,7 @@ class SSSingleDataset(object):
 
         return torch.LongTensor(edge_list).t()
 
+
 class SSDataset(object):
     def __init__(self, root, name1, name2):
         edge_index_1, dict_1, self.node2id_1 = self._preprocess(root, name1)
@@ -215,6 +202,7 @@ class SSDataset(object):
 
         return torch.LongTensor(edge_list).t(), name_dict, node2id
 
+
 def create_node_classification_dataset(dataset_name):
     if "airport" in dataset_name:
         return Edgelist(
@@ -248,7 +236,7 @@ def _my_aug_for_dgl(g, positional_embedding_size, entire_graph=False):
 
     # api属性遮掩
     # bernoulli待调
-    mask_k = torch.zeros(len(g.ndata['api_pro']), dtype=torch.int64).bernoulli(0.8).reshape((len(g.ndata['api_pro']),1))
+    mask_k = torch.zeros(len(g.ndata['api_pro']), dtype=torch.int64).bernoulli(0.8).reshape((len(g.ndata['api_pro']), 1))
     g.ndata['api_pro'] = g.ndata['api_pro'] * mask_k
     subg = _add_undirected_graph_positional_embedding(g, positional_embedding_size) # 增加位置属性？
     return subg
@@ -334,3 +322,9 @@ def _add_undirected_graph_positional_embedding(g, hidden_size, retry=10):
     x = eigen_decomposision(n, k, laplacian, hidden_size, retry)
     g.ndata["pos_undirected"] = x.float()
     return g
+
+
+def add_undirected_graph_positional_embedding(g, hidden_size, retry=10):
+    return _add_undirected_graph_positional_embedding(g, hidden_size)
+
+

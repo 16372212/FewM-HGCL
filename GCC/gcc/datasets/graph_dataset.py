@@ -19,7 +19,7 @@ from dgl.nodeflow import NodeFlow
 from gcc.Sample import Sample
 from gcc.Sample import Node
 from gcc.datasets import data_util
-from gcc.gen_my_datasets.matrix_to_dgl import samples_to_dgl
+# from gcc.gen_my_datasets.matrix_to_dgl import samples_to_dgl
 
 
 def worker_init_fn(worker_id):
@@ -350,8 +350,8 @@ class GraphClassificationDataset(NodeClassificationDataset):
         # TODO 修改自己的dataset作为一部分
         self.dataset = data_util.create_graph_classification_dataset(dataset)
         self.k_graphs = self.dataset['graph_k_lists']
-        self.q_graphs = self.dataset['graph_q_lists'] # 增强版
-        self.length = len(self.q_graphs)
+        # self.q_graphs = self.dataset['graph_q_lists'] # 增强版需要自己查找
+        self.length = len(self.dataset)
         self.total = self.length
 
         print(f'=====k_graph_size:{len(self.k_graphs)}, q_graph_size:{len(self.q_graphs)}======')

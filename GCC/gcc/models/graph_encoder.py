@@ -64,7 +64,8 @@ class GraphEncoder(nn.Module):
         super(GraphEncoder, self).__init__()
 
         if degree_input:
-            node_input_dim = positional_embedding_size + degree_embedding_size + 2 
+            node_input_dim = positional_embedding_size + degree_embedding_size + 2 # 66
+            print(f'node_input_dim: {node_input_dim}')
         else:
             node_input_dim = positional_embedding_size + 2
         # node_input_dim = (
@@ -92,7 +93,7 @@ class GraphEncoder(nn.Module):
             )
         elif gnn_model == "gin":
             self.gnn = UnsupervisedGIN(
-                num_layers=num_layers,
+                num_layers=num_layers, # 
                 num_mlp_layers=2,
                 input_dim=node_input_dim,
                 hidden_dim=node_hidden_dim,
@@ -157,11 +158,12 @@ class GraphEncoder(nn.Module):
                 degrees = degrees.cuda(device)
             n_feat = torch.cat(
                 (
-                    g.ndata['_ID'].unsqueeze(1).float(),
-                    g.ndata['node_type'].unsqueeze(1).float(),
+                    g.ndata['_ID'].unsqueeze(1).float(), # 1
+                    g.ndata['node_type'].unsqueeze(1).float(), # 1
+                    g.ndata["api_pro"], # 32
+                    self.degree_embedding(degrees.clamp(0, self.max_degree)), # 16
                     # g.ndata["pos_undirected"], # ([512, 32])
-                    g.ndata["api_pro"],
-                    self.degree_embedding(degrees.clamp(0, self.max_degree)), # ([512, 16])
+                    
                     # g.ndata["seed"].unsqueeze(1).float(), # ([512])
                 ),
                 dim=-1,
