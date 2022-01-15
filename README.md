@@ -15,8 +15,15 @@ gcc文件夹下是根据gcc的源码改写内容，任务可分成节点分类�
 ## 运行方法：sh run.sh 对比实验：sh run_loop.sh
 
 ## 实验结果
+
 result.rar文件夹下的result.txt可见结果。打印出所有result文件夹下的txt集合后，结果在total_result.txt中。 最高准确率（108类）达到0.81，但大类分类结果比这个低
 
 #### 原因
 
 big_label这里处理的有些问题。可以修改matrix_to_huge_dgl.py， my_
+
+
+
+数据集：
+
+布谷鸟数据集
