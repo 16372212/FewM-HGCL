@@ -1,6 +1,27 @@
 # 异构图构建
 布谷鸟异构图构建，对比学习
 
+## 项目结构介绍
+
+dgl_compare_learning:
+
+- utl 一些可复用性功能
+- demo_test 一些test demo, 测试数据库的链接性、文件是否存在、以及简单例子测试
+- train 
+  - prepare_gcc_data
+  - GCC gcc作为模型进行测试
+- data （data部分数据暂时只上传input部分，其他需在gitignore中声明）
+  - input_data: input data
+  - mid_data: 中间生成的数据
+  - out_data: output data
+- prepare 数据预处理
+  - read_data 读取数据
+  - draw_graph
+  - build_dgl_from_graph
+  - prepare.py
+- 资料 纸质版实验资料
+
+
 ## 运行
 ### 1. 先生成需要的graph, aug_graph数据
 aug_graph的生成: 运行matrix_to_huge_dgl.py, 得到gcc\gen_my_datasets\aug_graphs_x
