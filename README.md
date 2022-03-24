@@ -6,7 +6,7 @@
 dgl_compare_learning:
 
 - utl 一些可复用性功能
-- demo_test 一些test demo, 测试数据库的链接性、文件是否存在、以及简单例子测试
+- test 一些test demo, 测试数据库的链接性、文件是否存在、以及简单例子测试
 - train 
   - prepare_gcc_data
   - GCC gcc作为模型进行测试

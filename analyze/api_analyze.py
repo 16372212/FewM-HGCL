@@ -76,5 +76,5 @@ if __name__ == "__main__":
     for freq in api_freq_of_labels:
         i += 1
         print(f'combine{i}: {freq}')
-        print(f'total sum of combing: {api_freq_list[i]}')
+        print(f'total sum of combing: {api_freq_list[i]} \n')
 
