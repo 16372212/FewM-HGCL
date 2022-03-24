@@ -25,7 +25,8 @@ def sum_of_labels_and_families(label: Dict[str, Dict[str, str]]):
 if __name__ == "__main__":
     labels: Dict[str, Dict[str, str]] = get_labels_from_file("../label/sample_result.txt")
     sum_of_labels_and_families(labels)
-    sample_labels: Dict[str, Dict[str, str]] = get_labels_from_mongo(labels)
+    # total sample num: 50434
+    # sample_labels: Dict[str, Dict[str, str]] = get_labels_from_mongo(labels)
     # print("label of initial files")
     # sum_of_labels_and_families(labels)
     # print("label of mongo")
