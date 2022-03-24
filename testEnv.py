@@ -2,9 +2,9 @@ import numpy
 import torch
 import os
 import json
-from util.read_files import getAllFiles
+from util.io_util import get_all_files_by_dir
 # from util.get_label_id_by_hash import get_dict_of_hash_id
-from util.mongo_func import read_file_hash_from_mongodb
+from util.mongo_util import read_file_hash_from_mongodb
 
 InputDataPath = "../布谷鸟数据集/Win32_EXE/"
 
@@ -15,7 +15,7 @@ def judge_hash_of_json_and_mongo():
     jsonHash_dict = {}
     print(f'label num in mongo: {len(malware_dict)}')
     
-    jsonFiles = getAllFiles(InputDataPath)
+    jsonFiles = get_all_files_by_dir(InputDataPath)
     for file in jsonFiles:
         f = open(file,'r')
         doc ={}

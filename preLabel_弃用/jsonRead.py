@@ -6,7 +6,7 @@ import time
 import os
 from pathlib import Path
 import pandas as pd
-from util.read_files import getAllFiles
+from util.io_util import get_all_files_by_dir
 
 InputDataPath = "../布谷鸟数据集/Win32_EXE/"
 OutputPath = "./label/label.csv"
@@ -210,7 +210,7 @@ def writeLableToCSV(labelList, path):
 
 
 def getLableFromAllCompany():
-    jsonFiles = getAllFiles(InputDataPath)
+    jsonFiles = get_all_files_by_dir(InputDataPath)
     labels = []
     for file in jsonFiles:
         name, family = readScansFromAllCompany(file)
@@ -220,7 +220,7 @@ def getLableFromAllCompany():
 
 
 def getLableFromMicrosoft():
-    jsonFiles = getAllFiles(InputDataPath)
+    jsonFiles = get_all_files_by_dir(InputDataPath)
     labels = []
     for file in jsonFiles:
         name, family = readScansFromMicrosoft(file)

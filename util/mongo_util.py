@@ -5,6 +5,12 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 
+def get_mongo_client(host):
+    port = 27017
+    client = MongoClient(host, port, unicode_decode_error_handler='ignore')
+    return client
+
+
 def read_from_mongodb(host, dbname, colname):
     port = 27017
     client = MongoClient(host, port, unicode_decode_error_handler='ignore')
@@ -53,7 +59,7 @@ def read_file_hash_from_mongodb(host, dbname, colname):
     return res
 
 
-def test_connect():
+def connect_demo():
     port = 27017
     host = '192.168.105.224'
     dbname = 'cuckoo_nfs_db'
@@ -68,4 +74,12 @@ def test_connect():
     print(f"collection {coll_name} in connect mongo count : {collection.count()}")
 
 
-test_connect()
+def test_connect(host, dbname, coll_name):
+    port = 27017
+    client = MongoClient(host, port, unicode_decode_error_handler='ignore')
+    dblist = client.list_database_names()
+    for db in dblist:
+        print("database: ", db)
+    database = client[dbname]
+    collection = database[coll_name]
+    print(f"collection {coll_name} in connect mongo count : {collection.count()}")

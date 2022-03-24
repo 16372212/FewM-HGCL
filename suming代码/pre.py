@@ -12,27 +12,16 @@ import datetime
 import pickle
 import logging
 import copy
+from analyze.label_analyze import get_labels_from_file
 
 GRAPH_OUTPUT_PATH = './graph.pkl'
 NODE_OUTPUT_PATH = './nodes.pkl'
 SAMPLE_LIST_OUTPUT_PATH = './sample_list.pkl'
 SAMPLE_SAMPLE_NUM_TO_NODE_ID = './sample_num_to_node_id.pkl'
+LABEL_FILE = "../label/sample_result.txt"
 
-f = open('../label/sample_result.txt', 'r')
-datas = f.read().split('\n')
+labels = get_labels_from_file(LABEL_FILE)
 
-labels = {}
-for data in datas:
-    if ',' in data:
-        data = data.split(',')
-        file_hash = data[0]
-        type1 = data[1]
-        type2 = data[2]
-        labels[file_hash] = {}
-        labels[file_hash]['label'] = type1
-        labels[file_hash]['family'] = type2
-
-f.close()
 print('Loaded Labels')
 
 with open('../mid_data/api_index_map.pkl', 'rb') as fr:
@@ -100,38 +89,6 @@ def ana_samples():
             actual_familys[samples.family] += 1
     print(f'actual collected familys this time: {len(actual_familys)}')
     print(actual_familys)
-
-
-def ana_total_labels():
-    """这里总结的所有的数据里的family的个数。而不是实际上此次收集的数据集中family的个数"""
-    print('------------analyze labels------------')
-    print(f'total sample num: {len(labels)}')
-    label_dict = {}
-    family_dict = {}
-
-    for file_hash in labels:
-        if labels[file_hash]['label'] not in label_dict:
-            label_dict[labels[file_hash]['label']] = 1
-        else:
-            label_dict[labels[file_hash]['label']] += 1
-
-        if labels[file_hash]['family'] not in family_dict:
-            family_dict[labels[file_hash]['family']] = []
-
-        family_dict[labels[file_hash]['family']].append(1)  # [labels[file_hash]['label']] = 1
-
-    print(f'total label category : {len(label_dict)}')
-    print(label_dict)
-    # for label in label_dict:
-    #     print(f'label {label} num : {label_dict[label]}')
-
-    print()
-    print(f'total family category : {len(family_dict)}')
-
-    # for fam in family_dict:
-    #     print(f'family {fam} num : {len(family_dict[fam])}')
-
-    print(f'total samples in sample_list: {len(sample_list)}')
 
 
 ## 深搜遍历，用于连接样本、进程

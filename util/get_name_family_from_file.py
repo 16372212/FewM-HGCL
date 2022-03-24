@@ -249,12 +249,12 @@ def getLableFromAllCompany(path):
     writeLableToCSV(labels, OutputPath)
 
 
-def getLableFromMicrosoft(path):
-    jsonFiles = getAllFiles(path)
+def get_label_from_microsoft(path):
+    json_files = getAllFiles(path)
     hash_dict = {}
     name_list = []
     family_list = []
-    for file in jsonFiles:
+    for file in json_files:
         name, family, fhash = readScansFromMicrosoft(file)
         if name != '' and family != '':
             name_list.append(name)
@@ -264,9 +264,9 @@ def getLableFromMicrosoft(path):
 
 
 def getHashFromFiles(path):
-    jsonFiles = getAllFiles(path)
+    json_files = getAllFiles(path)
     file_hash = []
-    for filename in jsonFiles:
+    for filename in json_files:
 
         f = open(filename, 'r')
         doc = {}
@@ -290,4 +290,4 @@ if __name__ == '__main__':
         "Virus:Win32/Virut.BN"
     """
     # getLableFromAllCompany(InputDataPath)
-    getLableFromMicrosoft(InputDataPath)
+    get_label_from_microsoft(InputDataPath)

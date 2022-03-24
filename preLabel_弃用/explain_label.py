@@ -1,7 +1,7 @@
 import os
 import json
-from util.get_name_family_from_file import getLableFromMicrosoft
-from util.mongo_func import read_file_hash_from_mongodb, read_from_mongodb
+from util.get_name_family_from_file import get_label_from_microsoft
+from util.mongo_util import read_file_hash_from_mongodb, read_from_mongodb
 import pymongo
 from bson.objectid import ObjectId
 
@@ -24,7 +24,7 @@ def writeLabelFromLocal():
     """
     # 1 从本地get all file, 得到file_hash, family, name:dict[file_hash: dict{'family', 'name'}]
 
-    hash_dict = getLableFromMicrosoft(InputDataPath)
+    hash_dict = get_label_from_microsoft(InputDataPath)
 
     # 2 从mongo中读取所有的dict{file_hash, _id}
     mongo_file_dict = read_file_hash_from_mongodb(host, dbname, colname)

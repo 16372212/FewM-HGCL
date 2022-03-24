@@ -2,7 +2,7 @@
 
 import pymongo
 from bson import json_util as jsonb
-from util.mongo_func import read_from_mongodb
+from util.mongo_util import read_from_mongodb
 import json
 import time
 import os
@@ -13,7 +13,7 @@ import pickle
 
 api_index_map = {}
 
-api_matrix = [] # {name: , category: , Arguments: (registory)(一个大字符串，开头格式须一致)}
+api_matrix = []  # {name: , category: , Arguments: (registory)(一个大字符串，开头格式须一致)}
 
 databases_name = ["cuckoo_nfs_db"]
 
@@ -49,7 +49,7 @@ def set_api_word_dict(name, size, api_dict, api_set):
     """驼峰转单词集合，
         完善dict, set
         返回众多feature_hashing集合的并"""
-    
+
     word_list = re.findall('[A-Z][^A-Z]*', name)
     # print('word list: ')
     # print(word_list)
@@ -82,9 +82,8 @@ def set_argu_dict(argument_dict):
 
 
 def readApiFromMongo():
-    
     for database_name in databases_name:
-        client = pymongo.MongoClient(host=ip, port=port,unicode_decode_error_handler='ignore')
+        client = pymongo.MongoClient(host=ip, port=port, unicode_decode_error_handler='ignore')
         bad_collections = client[database_name][collection_name]
 
         print(f'----------------begin to write database {database_name}---------------')
@@ -96,13 +95,11 @@ def readApiFromMongo():
             calls = x['calls']
             for call in calls:
 
-                
                 # print(call['category'])
                 # print(call['arguments'])
 
                 if call is None or 'api' not in call:
                     continue
-                
 
                 api_name = call['api']
                 if api_name in api_index_map:
@@ -114,11 +111,15 @@ def readApiFromMongo():
                     break
 
                 api_index_map[call['api']] = len(api_matrix)
-                
-                array_name = set_api_word_dict(call['api'], NAME_SIZE, api_name_word_dict, api_name_word) # 完善dict, set, 并返回对应的向量并的结果. name, size, api_dict, api_set
-                array_category = set_api_word_dict(call['category'].upper(),CATEGORY_SIZE , api_category_letter_dict, api_category_letter) # 根据每个字母进行分割
-                array_arguments = set_argu_dict(call['arguments']) # 判断一开始是否有HKEY开头
-                
+
+                # 完善dict, set, 并返回对应的向量并的结果. name, size, api_dict, api_set
+                array_name = set_api_word_dict(call['api'], NAME_SIZE, api_name_word_dict, api_name_word)
+                # 根据每个字母进行分割
+                array_category = set_api_word_dict(call['category'].upper(), CATEGORY_SIZE, api_category_letter_dict,
+                                                   api_category_letter)
+                # 判断一开始是否有HKEY开头
+                array_arguments = set_argu_dict(call['arguments'])
+
                 total_vec = np.hstack((array_name, array_category, array_arguments))
 
                 api_matrix.append(total_vec)
@@ -137,24 +138,22 @@ def readApiFromMongo():
 
     with open(OUTPUT_PATH, 'wb') as fr:
         pickle.dump(api_matrix, fr)
-
-        pickle.dump(api_index_map,fr)
+        pickle.dump(api_index_map, fr)
 
 
 readApiFromMongo()
 
-def readApiFromFile():
 
+def readApiFromFile():
     with open(OUTPUT_PATH, 'rb') as fr:
         api_matrix = pickle.load(fr)
         api_index_map = pickle.load(fr)
 
 
 def maskApiMatrix(api_matrix):
-
-    randome_mask_location = np.random.randint(0,2,(api_matrix.shape[0], api_matrix.shape[1]))
-    randome_mask_value = np.random.normal(size=(4,4)) # 生成高斯分布的矩阵，这里需要找到所有一维矩阵的的最大值和最小值
-    return api_matrix*(1-randome_mask) + randome_mask_value*randome_mask
+    randome_mask = 0.8
+    randome_mask_location = np.random.randint(0, 2, (api_matrix.shape[0], api_matrix.shape[1]))
+    randome_mask_value = np.random.normal(size=(4, 4))  # 生成高斯分布的矩阵，这里需要找到所有一维矩阵的的最大值和最小值
+    return api_matrix * (1 - randome_mask) + randome_mask_value * randome_mask
 
     # api_mask_matrix = ma.masked_array(api_matrix, mask=randome_mask)
-

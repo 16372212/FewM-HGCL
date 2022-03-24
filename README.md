@@ -19,6 +19,7 @@ dgl_compare_learning:
   - draw_graph
   - build_dgl_from_graph
   - prepare.py
+- analyze 统计类的工作
 - 资料 纸质版实验资料
 
 
@@ -48,3 +49,9 @@ big_label这里处理的有些问题。可以修改matrix_to_huge_dgl.py， my_
 数据集：
 
 布谷鸟数据集
+
+# 数据集说明
+
+布谷鸟数据集整理后的放在了mongoDB中。
+
+cuckoo_nfs_dX中的数据里，calls这个collection不是和analysis以及其他对应的。
