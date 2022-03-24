@@ -22,23 +22,22 @@ def readScansFromMicrosoft(filename):
         "Trojan:Win32/VBClone"
         "Virus:Win32/Virut.BN"
     """
-    
-    f = open(filename,'r')
-    doc ={}
+
+    f = open(filename, 'r')
+    doc = {}
     results = {}
     # results: {"Microsoft": "Trojan:Win32/Fuerboos.E!cl", ...}
     doc = json.load(f)
     f.close()
-    if( 'scans' in doc.keys()):
+    if 'scans' in doc.keys():
         # 判断是否有microsoft的结果
         if 'Microsoft' not in doc['scans']:
-            print('not in') # 3G左右文件可能有20个没有相关Microsoft的结果，可以直接忽略
+            print('not in')  # 3G左右文件可能有20个没有相关Microsoft的结果，可以直接忽略
         else:
-            resultStr = ""
             resultStr = doc['scans']['Microsoft']['result']
             # print(resultStr)
             if resultStr.find('None') != -1:
-            # if 'None' in resultStr: # 有一种情况是某公司测出来的是none
+                # if 'None' in resultStr: # 有一种情况是某公司测出来的是none
                 results[key] = resultStr.lower()
                 print("None")
     # name, family = countFreqByVoting(results)
@@ -46,19 +45,18 @@ def readScansFromMicrosoft(filename):
     return "", ""
 
 
-
 def readScansFromAllCompany(filename):
     """
     获取filename中，scan下所有公司得到的结果：name+family
     通过投票机制选择name, familyName
     """
-    f = open(filename,'r')
-    doc ={}
+    f = open(filename, 'r')
+    doc = {}
     results = {}
     # results: {"Microsoft": "Trojan:Win32/Fuerboos.E!cl", ...}
     doc = json.load(f)
     f.close()
-    if( 'scans' in doc.keys()):
+    if ('scans' in doc.keys()):
         for key in doc['scans']:
             # key: Microsoft etc
             resultStr = ""
@@ -78,7 +76,7 @@ def genFamily(result, str):
         if str in temp_str:
             find = True
             continue
-        if find and temp_str!='win32':
+        if find and temp_str != 'win32':
             return temp_str
     return ''
 
@@ -107,15 +105,15 @@ def countFreqByVoting(results):
     general = 0
     gen_else = 0
 
-    family_list = {'trojan':[], 'virus':[], 'worm':[] , 'adware':[], 'backdoor':[], 
-    'downloader':[], 'spyware':[], 'dropper':[], 'general':[], 'gen_else':[]}
-    
+    family_list = {'trojan': [], 'virus': [], 'worm': [], 'adware': [], 'backdoor': [],
+                   'downloader': [], 'spyware': [], 'dropper': [], 'general': [], 'gen_else': []}
+
     name = ''
     family = ''
 
     max_freq = 0
 
-    if results==None:
+    if results == None:
         return name, family
     for key in results.keys():
         result = results[key]
@@ -125,16 +123,16 @@ def countFreqByVoting(results):
                 max_freq = trojan
                 name = 'trojan'
                 family_name = genFamily(result, 'trj')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
-                
+
         elif 'vir' in result or 'Vir' in result:
             virus += 1
             if virus > max_freq:
                 max_freq = virus
                 name = 'virus'
                 family_name = genFamily(result, 'vir')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
 
         elif 'worm' in result or 'Worm' in result:
@@ -143,16 +141,16 @@ def countFreqByVoting(results):
                 max_freq = worm
                 name = 'worm'
                 family_name = genFamily(result, 'worm')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
-                
+
         elif 'Adw' in result or 'adw' in result or 'AdW' in result or 'adW' in result:
             adware += 1
             if adware > max_freq:
                 max_freq = adware
                 name = 'adware'
                 family_name = genFamily(result, 'adw')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
 
         elif 'back' in result or 'Back' in result:
@@ -161,7 +159,7 @@ def countFreqByVoting(results):
                 max_freq = backdoor
                 name = 'backdoor'
                 family_name = genFamily(result, 'back')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
 
         elif 'spy' in result or 'Spy' in result:
@@ -170,7 +168,7 @@ def countFreqByVoting(results):
                 max_freq = spyware
                 name = 'spyware'
                 family_name = genFamily(result, 'spy')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
 
         elif 'down' in result or 'Down' in result:
@@ -179,7 +177,7 @@ def countFreqByVoting(results):
                 max_freq = downloader
                 name = 'downloader'
                 family_name = genFamily(result, 'down')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
 
         elif 'drop' in result or 'Drop' in result:
@@ -188,7 +186,7 @@ def countFreqByVoting(results):
                 max_freq = dropper
                 name = 'dropper'
                 family_name = genFamily(result, 'drop')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
 
         elif 'gen' in result or 'Gen' in result:
@@ -197,19 +195,18 @@ def countFreqByVoting(results):
                 max_freq = general
                 name = 'general'
                 family_name = genFamily(result, 'gen')
-                if(family_name != ''):
+                if (family_name != ''):
                     family_list[name].append(family_name)
-                    
-    if(len(family_list[name]) > 0):                
+
+    if (len(family_list[name]) > 0):
         return name, family_list[name][0]
-    else: # 需要被直接丢弃的数据
+    else:  # 需要被直接丢弃的数据
         return name, ''
 
 
-
 def writeLableToCSV(labelList, path):
-    dataframe = pd.DataFrame({'label':labelList})
-    dataframe.to_csv(path, index=False,sep=',')
+    dataframe = pd.DataFrame({'label': labelList})
+    dataframe.to_csv(path, index=False, sep=',')
 
 
 def getLableFromAllCompany():
@@ -217,10 +214,10 @@ def getLableFromAllCompany():
     labels = []
     for file in jsonFiles:
         name, family = readScansFromAllCompany(file)
-        labels.append(name+"."+family)
-        print(name+"."+family)
+        labels.append(name + "." + family)
+        print(name + "." + family)
     writeLableToCSV(labels, OutputPath)
-        
+
 
 def getLableFromMicrosoft():
     jsonFiles = getAllFiles(InputDataPath)
