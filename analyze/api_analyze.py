@@ -1,4 +1,5 @@
-from typing import List, Dict
+import re
+from typing import List, Dict, Set
 from util.mongo_util import get_mongo_client
 from util.label_util import get_labels_from_file
 from util.const import host, databases_name, dbcalls_dict
@@ -10,7 +11,9 @@ def get_freq_of_api_comb() -> (List[int], List[Dict[str, int]]):
     api_comb_list = get_api_combines()
     api_comb_freq_list = len(api_comb_list) * [0]
 
-    api_freq_of_labels_list = [{'Trojan': 0, 'Worm': 0, 'Virus': 0, 'VirTool': 0, 'Backdoor': 0, 'SoftwareBundler': 0, 'DDoS': 0, 'PUA': 0, 'Ransom': 0, 'HackTool': 0, 'Program': 0, 'PWS': 0} for row in range(12)]
+    api_freq_of_labels_list = [
+        {'Trojan': 0, 'Worm': 0, 'Virus': 0, 'VirTool': 0, 'Backdoor': 0, 'SoftwareBundler': 0, 'DDoS': 0, 'PUA': 0,
+         'Ransom': 0, 'HackTool': 0, 'Program': 0, 'PWS': 0} for row in range(12)]
 
     client = get_mongo_client(host)
     # 遍历所有的calls类
@@ -69,12 +72,29 @@ def get_api_combines() -> List[List[str]]:
     return api_comb_list
 
 
-if __name__ == "__main__":
-    api_freq_list, api_freq_of_labels = get_freq_of_api_comb()
-    # [0, 0, 0, 0, 6, 0, 267, 3388, 0, 0, 19, 0]
-    i = 0
-    for freq in api_freq_of_labels:
-        i += 1
-        print(f'combine{i}: {freq}')
-        print(f'total sum of combing: {api_freq_list[i]} \n')
+def get_api_verb_sum():
+    api_verb_dict = set()
+    client = get_mongo_client(host)
+    for database_name in databases_name:
+        print(f"database: {database_name}")
+        call_collection = client['db_calls'][dbcalls_dict[database_name]]
+        cursor = call_collection.find(no_cursor_timeout=True)
+        for x in cursor:
+            for call in x['calls']:
+                call_name: str = call
+                verb_list = re.findall('[A-Z][a-z]*', call_name)
+                for verb in verb_list:
+                    api_verb_dict.add(verb)
+    print(api_verb_dict)
+    print(len(api_verb_dict))
 
+
+if __name__ == "__main__":
+    # api_freq_list, api_freq_of_labels = get_freq_of_api_comb()
+    # # [0, 0, 0, 0, 6, 0, 267, 3388, 0, 0, 19, 0]
+    # i = 0
+    # for freq in api_freq_of_labels:
+    #     i += 1
+    #     print(f'combine{i}: {freq}')
+    #     print(f'total sum of combing: {api_freq_list[i]} \n')
+    get_api_verb_sum()
