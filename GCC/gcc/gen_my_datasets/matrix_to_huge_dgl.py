@@ -3,14 +3,12 @@
 # File Name: matrix_to_dgl.py
 # Author: Zhen Ziyang
 # Create Time: 2021/11/10 21:50
-# TODO: 现在还没有修改pre.py中process的连接方式
+# 该py文件主要干两件事：构造dgl子图， 构造dgl增强子图
 
-import io
-import itertools
+
 import os
-import os.path as osp
-from collections import defaultdict, namedtuple
 import pickle
+
 import dgl
 import matplotlib.pyplot as plt
 import matplotlib
@@ -18,23 +16,17 @@ import matplotlib
 # matplotlib.use('TkAgg')
 import networkx as nx
 import numpy as np
-import scipy
-import scipy.sparse as sparse
-import sklearn.preprocessing as preprocessing
 import torch
-import torch.nn.functional as F
-from dgl.data.tu import TUDataset
-from scipy.sparse import linalg
 import logging
 import sys
 import copy
 from dgl.data.utils import save_graphs
 from dgl.data.utils import load_graphs
+
 root_path = os.path.abspath("./")
 sys.path.append(root_path)
 
 from gcc.Sample import Sample, Node
-
 
 GRAPH_OUTPUT_PATH = 'gcc/gen_my_datasets/graph.pkl'
 NODE_OUTPUT_PATH = 'gcc/gen_my_datasets/nodes.pkl'
@@ -43,22 +35,25 @@ API_MATRIX_OUTPUT_PATH = 'gcc/gen_my_datasets/api_matrix1_3.pkl'
 API_INDEX_OUTPUT_PATH = 'gcc/gen_my_datasets/api_index_map.pkl'
 SAMPLE_NUM_TO_NODE_ID_PATH = 'gcc/gen_my_datasets/sample_num_to_node_id.pkl'
 
-GRAPH_INPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_data.bin'
-GRAPH_AUG_INPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_aug_data.bin'
+DGL_OUTPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_data.bin'  # 构造的dgl
 
-GRAPH_SUB_AUG_INPUT_PATH = 'gcc/gen_my_datasets/aug_graphs_15/aug_'
+GRAPH_SUB_AUG_INPUT_PATH = 'gcc/gen_my_datasets/aug_graphs_15/aug_'  # 构造的正样本的存放路径
 
-graph = {}
-Nodes = []
-sample_list = []
-label_index = {}
-labels = []
+# 前置数据（已有，直接读取）
+graph = {}  # 二维矩阵dict{}。从原始数据集通过dfs构造出来的二维matrix
+Nodes = []  # 记录矩阵中所有节点的list。Node中的index和graph中节点的index是对应关系。相当于matrix表示的是节点之间的关系，nodes列出所有节点及其属性。
+sample_list = []  # 计算出来的存储所有sample的列表
 
-big_label_index = {}
-big_labels = []
+# 中间数据
+label_index = {}  # Dict[大类label名称: labels中的index]
+labels = []  # List[大类label名称]，二者对应关系
 
-left_node = []
-right_node = []
+big_label_index = {}  # Dict[family label名称: labels中的index]
+big_labels = []  # List[family label名称]，二者对应关系
+
+left_nodes = []  # 构造dgl用到的中间数据。dgl中的边的起始节点
+right_nodes = []  # dgl中的边的终止节点
+
 API_LIST_LEN = 32
 td = {'api': 0, 'network': 1, 'reg': 2, 'file': 3, 'process': 4}
 
@@ -100,8 +95,9 @@ def gen_node_relation(node_id, type_dict):
     # 加一些边, 单向
     for type_ in type_dict:
         for num in type_dict[type_]:
-            left_node.append(node_id)
-            right_node.append(num)
+            left_nodes.append(node_id)
+            right_nodes.append(num)
+            # 下面注释若打开说明图是双向边
             # left_node.append(num)
             # right_node.append(node_id)
 
@@ -122,62 +118,57 @@ def gen_ndata_property():
     return node_type, api_pro
 
 
-
-def samples_to_dgl():
-    sample_id_lists = []
-    label_lists = []
-    # label_num_dict = {}  # label_index : nums
-    
-    big_label_lists = []
+def draw_dgl_from_matrix():
+    """根据二维矩阵graph和节点属性列表nodes来构建dgl的函数"""
+    sample_id_lists = []  # sample列表，记录用来构建dgl的所有sample的index
+    big_label_lists = []  # label列表（大类）。Trojan, Backdoor之类的
+    family_label_lists = []  # label列表（小类) 大类中的家族名称。每个大类label下会包含各个family
     error_sample_nodes_in_graph = 0
     print(
         f'===============sample num:{len(sample_list)}===total num{len(Nodes)} , graph len:{len(graph)}:====================')
 
-    num = 1
     for sample_num in graph:
-        # dgl create
+        # 遍历二维矩阵中node节点之间的关系构建dgl
         node_id = -1
         if sample_num[0] != 's':
-            # 没有以s开头的节点，属于process节点
+            # graph中该节点没有以s开头，说明该节点不可以作为一个sample。因此只是加入到node_id中
             node_id = int(sample_num)
             error_sample_nodes_in_graph += 1
         if sample_num[0] == 's' and int(sample_num[1:]) < len(sample_list):
-            # 以s开头，属于合理的sample
+            # 以s开头，属于合理的sample，开始构造single subgraph
             sample_num_int = int(sample_num[1:])
             sam = sample_list[sample_num_int]
             node_id = sample_num_to_node_id[sam.num]
-            label = get_label_index(sam.family)
             big_label = get_big_label_index(sam.label)
-            # 判断这个类型的数目，选择性添加sample
-            # if label in label_num_dict:
-            #     label_num_dict[label] += 1
-            # else:
-            #     label_num_dict[label] = 1
+            family_label = get_label_index(sam.family)
 
             sample_id_lists.append(node_id)
-            label_lists.append(label)
             big_label_lists.append(big_label)
+            family_label_lists.append(family_label)
 
-        # 构造left_node, right_node
-        # no matter it is process or graph, should draw it in graph
+        # 记录graph二维矩阵中的节点之间的关系，生成left_nodes, right_nodes。
+        # node_id是当前节点index值。graph[sample_num]: 代表和当前节点相关联的节点的列表
         gen_node_relation(node_id, graph[sample_num])
 
-    print(f'======after creating : sample num:{len(sample_id_lists)}===label num{len(label_lists)}===big label num{len(big_label_lists)}=================')
-    print(f'graph中有{len(graph) - len(label_lists)}个process节点')
+    print(
+        f'======after creating : sample num:{len(sample_id_lists)}===label num{len(family_label_lists)}===big label num{len(big_label_lists)}=================')
+    print(f'graph中有{len(graph) - len(family_label_lists)}个process节点')
     print(f'{error_sample_nodes_in_graph} nodes not begin with s in graph(file-process)、(reg-process)')
-    # ana_process_nodes(sample_id_lists)
     # 构建dgl_graph
-    dgl_graph = dgl.DGLGraph((torch.tensor(left_node), torch.tensor(right_node)))
-    # draw_graph(dgl_graph, 1)
+    dgl_graph = dgl.DGLGraph((torch.tensor(left_nodes), torch.tensor(right_nodes)))
     node_type, api_pro = gen_ndata_property()  # 根据Nodes的顺序得到的，未筛选
+    # 构造dgl节点的三种属性
     dgl_graph.ndata['node_type'] = torch.tensor(node_type)
     dgl_graph.ndata['api_pro'] = torch.tensor(np.array(api_pro))
     dgl_graph.ndata['node_id'] = torch.tensor([*range(0, len(node_type), 1)])
-    return dgl_graph, sample_id_lists, label_lists, big_label_lists
+    return dgl_graph, sample_id_lists, family_label_lists, big_label_lists
+
+
+huge_graph, sample_id_lists, family_label_lists, big_label_lists = draw_dgl_from_matrix()
 
 
 def ana_process_nodes(sample_id_lists):
-    """通过查看这些数据，发现file里面的节点不均匀，少数达到两千多。其他的节点个数都很正常"""
+    """通过查看这些数据的分布。发现file里面的节点不均匀，少数达到两千多。其他的节点个数都很正常"""
     i = 0
     for node in Nodes:
         if node.type_ == 'process' and node.num not in sample_id_lists:
@@ -195,6 +186,74 @@ def ana_process_nodes(sample_id_lists):
         dict[type_].sort()
         print(dict[type_])
         print()
+
+
+def analyze_nodes(sample_id, len2_node, g):
+    k = 0
+    for node_id in len2_node:
+        id_ = int(node_id)
+        type_ = g.ndata['node_type'][id_]
+        if type_ == 4:
+            k += 1
+    print(f'{sample_id} has {k} processes')
+
+
+def draw_aug_dgls():
+    """ 根据每个dgl A 构造正样本A'
+    不加处理会产生OOM，内存超过。一个是运算时间很慢，但更重要的是，数据量太大，将所有的节点变成都统一存储在一起，内存容量会暴增
+    解决办法:
+        1. 长度为2的节点做一个过滤，判断是否是自己的processTree里的
+        2. 减少api参数长度: 将长度为32，删除多余参数变成长度为12
+        3. 将aug的数据放到batch里进行训练
+    """
+    aug_to_k_index = []
+    graph_k_list = []
+    k_qnum_list = []
+    print('sample id的总数：')
+    print(len(sample_id_lists))
+    index = 0
+    # test num of nodes which have len3_node
+    num_have_len3node = 0
+    add_edge_num = 0
+    del_node_num = 0
+    k = 0
+    for sample_id in sample_id_lists:
+        k_qnum_list.append(len(aug_to_k_index))
+        if len(dgl.bfs_nodes_generator(huge_graph, sample_id)) >= 3:
+            num_have_len3node += 1
+            len1_node, len2_node, len3_node = dgl.bfs_nodes_generator(huge_graph, sample_id)[:3]
+            tuple_temp = (len1_node, len2_node, len3_node)
+            an, dn = get_aug_of_graph_list([], sample_id, len2_node, aug_to_k_index, len(graph_k_list),
+                                           len3_node)  # 应该是加其实
+            add_edge_num += an
+            del_node_num += dn
+        else:
+            len1_node, len2_node = dgl.bfs_nodes_generator(huge_graph, sample_id)[:2]
+            tuple_temp = (len1_node, len2_node)
+            an, dn = get_aug_of_graph_list([], sample_id, len2_node, aug_to_k_index, len(graph_k_list))  # 应该是加其实
+            add_edge_num += an
+            del_node_num += dn
+        subv = torch.unique(torch.cat(tuple_temp)).tolist()
+        subg = huge_graph.subgraph(subv)
+        subg.copy_from_parent()
+        # draw_graph(subg, label_lists[index])
+        graph_k_list.append(subg)
+        index += 1
+        k += 1
+        if k % 100 == 0:
+            print(f'{k} / {len(sample_id_lists)}')
+    k_qnum_list.append(len(aug_to_k_index))
+    print(f'------------add_edge_num: {add_edge_num}, del_node_num:{del_node_num}-------------')
+    print(f'finished')
+    print(f'{num_have_len3node} nodes which have len3node')
+    print(len(aug_to_k_index))
+    # save it
+    graph_labels = {"glabel": torch.tensor(family_label_lists),
+                    "big_label": torch.tensor(big_label_lists),
+                    "k_q_index": torch.tensor(aug_to_k_index), "k_qnum": torch.tensor(k_qnum_list)}
+    # graph_index = {"kindex": torch.tensor(aug_to_k_index)}
+    save_graphs(DGL_OUTPUT_PATH, graph_k_list, graph_labels)
+    return aug_to_k_index
 
 
 def get_aug_of_graph_list(aug_list, sample_id, len2_node, aug_to_k_index, k_list_id, len3_node=None):
@@ -238,8 +297,8 @@ def get_aug_of_graph_list(aug_list, sample_id, len2_node, aug_to_k_index, k_list
         aug_list.append(temp_subgraph)
         aug_to_k_index.append(k_list_id)
         del_node_num += 1
-        # save 
-        save_graphs(GRAPH_SUB_AUG_INPUT_PATH+str(k_list_id)+'.bin', aug_list)
+        # save
+        save_graphs(GRAPH_SUB_AUG_INPUT_PATH + str(k_list_id) + '.bin', aug_list)
         # save_graphs(str(k_list_id)+'.bin', aug_list)
         return add_edge_num, del_node_num
 
@@ -282,8 +341,8 @@ def get_aug_of_graph_list(aug_list, sample_id, len2_node, aug_to_k_index, k_list
             # print(f'边的增加: {len(api_aug_g.edges)} : {len(temp_add_subgraph.edges)} / del_num={add_num} , g的边:{len(g.edges)}, temp_g的边:{len(temp_g.edges)}')
             aug_to_k_index.append(k_list_id)
             add_edge_num += 1
-    # save 
-    save_graphs(GRAPH_SUB_AUG_INPUT_PATH+str(k_list_id)+'.bin', aug_list)
+    # save
+    save_graphs(GRAPH_SUB_AUG_INPUT_PATH + str(k_list_id) + '.bin', aug_list)
     return add_edge_num, del_node_num
 
 
@@ -303,81 +362,11 @@ def draw_graph(g, label='normal'):
     plt.show()
 
 
-def analyze_nodes(sample_id, len2_node, g):
-    k = 0
-    for node_id in len2_node:
-        id_ = int(node_id)
-        type_ = g.ndata['node_type'][id_]
-        if type_ == 4:
-            k += 1
-    print(f'{sample_id} has {k} processes')
-
-
-huge_graph, sample_id_lists, label_lists, big_label_lists = samples_to_dgl()
-
-
-def get_each_sample_subgraph():
-    """不加处理会产生OOM，内存超过。一个是运算时间很慢，但更重要的是，数据量太大，将所有的节点变成都统一存储在一起，内存容量会暴增
-    解决办法:
-        1. 长度为2的节点做一个过滤，判断是否是自己的processTree里的
-        2. 减少api参数长度: 将长度为32，删除多余参数变成长度为12
-        3. 将aug的数据放到batch里进行训练
-    """
-    aug_to_k_index = []
-    graph_k_list = []
-    k_qnum_list = []
-    print('sample id的总数：')
-    print(len(sample_id_lists))
-    index = 0
-    # test num of nodes which have len3_node
-    num_have_len3node = 0
-    add_edge_num = 0
-    del_node_num = 0
-    k = 0
-    for sample_id in sample_id_lists:
-        k_qnum_list.append(len(aug_to_k_index))
-        if len(dgl.bfs_nodes_generator(huge_graph, sample_id)) >= 3:
-            num_have_len3node += 1
-            len1_node, len2_node, len3_node = dgl.bfs_nodes_generator(huge_graph, sample_id)[:3]
-            tuple_temp = (len1_node, len2_node, len3_node)
-            an, dn = get_aug_of_graph_list([], sample_id, len2_node, aug_to_k_index, len(graph_k_list), len3_node)  # 应该是加其实
-            add_edge_num += an
-            del_node_num += dn
-        else:
-            len1_node, len2_node = dgl.bfs_nodes_generator(huge_graph, sample_id)[:2]
-            tuple_temp = (len1_node, len2_node)
-            an, dn = get_aug_of_graph_list([], sample_id, len2_node, aug_to_k_index, len(graph_k_list))  # 应该是加其实
-            add_edge_num += an
-            del_node_num += dn
-        # print('------------------')
-        subv = torch.unique(torch.cat(tuple_temp)).tolist()
-        subg = huge_graph.subgraph(subv)
-        subg.copy_from_parent()
-        # draw_graph(subg, label_lists[index])
-        graph_k_list.append(subg)
-        index += 1
-        k += 1
-        if k % 100 == 0:
-            print(f'{k} / {len(sample_id_lists)}')
-    k_qnum_list.append(len(aug_to_k_index))
-    print(f'------------add_edge_num: {add_edge_num}, del_node_num:{del_node_num}-------------')
-    print(f'finished')
-    print(f'{num_have_len3node} nodes which have len3node')
-    print(len(aug_to_k_index))
-    # save it
-    graph_labels = {"glabel": torch.tensor(label_lists),
-    "big_label": torch.tensor(big_label_lists),
-    "k_q_index": torch.tensor(aug_to_k_index),"k_qnum":torch.tensor(k_qnum_list)}
-    # graph_index = {"kindex": torch.tensor(aug_to_k_index)}
-    save_graphs(GRAPH_INPUT_PATH, graph_k_list, graph_labels)
-    return aug_to_k_index
-
-
 def get_saved_sample_subgraph():
-    graph_k_list, label_lists = load_graphs(GRAPH_INPUT_PATH)
+    graph_k_list, label_lists = load_graphs(DGL_OUTPUT_PATH)
     dataset = dict()
     dataset['graph_k_lists'] = graph_k_list  # 原本子图
-    
+
     dataset['num_labels'] = len(label_lists['glabel'])
     dataset['graph_labels'] = label_lists['glabel']
     dataset['q_to_k_index'] = label_lists['k_q_index']
@@ -392,7 +381,7 @@ def get_saved_sample_subgraph():
         k_idx = int(dataset['q_to_k_index'][idx])
         q_idx = int(idx - dataset['k_qnum'][k_idx])
 
-        model_path = GRAPH_SUB_AUG_INPUT_PATH+str(k_idx)+'.bin'
+        model_path = GRAPH_SUB_AUG_INPUT_PATH + str(k_idx) + '.bin'
         graph_q_set = load_graphs(model_path)[0]
 
         # total_aug_num += len(model_path)
@@ -400,3 +389,9 @@ def get_saved_sample_subgraph():
         # print(graph_q_set[0])
     print(f'total_aug_num :{total_aug_num}')
 
+
+# 构造dgl子图
+draw_dgl_from_matrix()
+
+# 构造dgl子图的增强子图
+# draw_aug_dgls()
