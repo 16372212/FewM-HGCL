@@ -400,8 +400,3 @@ def get_saved_sample_subgraph():
         # print(graph_q_set[0])
     print(f'total_aug_num :{total_aug_num}')
 
-
-"""发现构的图中，出现的边太多"""
-# samples_to_dgl()
-get_each_sample_subgraph()
-# get_saved_sample_subgraph()

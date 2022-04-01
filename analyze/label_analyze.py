@@ -7,19 +7,41 @@ def sum_of_labels_and_families(label: Dict[str, Dict[str, str]]):
     print(f'total sample num: {len(label)}')
     label_dict: Dict[str, int] = {}
     family_dict: Dict[str, int] = {}
+    label_family_dict: Dict[str, Dict[str, int]] = {}  # label: contain families
     for each_hash in label:
-        if label[each_hash]['label'] not in label_dict:
-            label_dict[label[each_hash]['label']] = 1
+        big_category_name = label[each_hash]['label']
+        small_category_name = label[each_hash]['family']
+        if big_category_name not in label_dict:
+            label_dict[big_category_name] = 1
         else:
-            label_dict[label[each_hash]['label']] += 1
-        if label[each_hash]['family'] not in family_dict:
-            family_dict[label[each_hash]['family']] = 1
+            label_dict[big_category_name] += 1
+        if small_category_name not in family_dict:
+            family_dict[small_category_name] = 1
         else:
-            family_dict[label[each_hash]['family']] += 1
+            family_dict[small_category_name] += 1
+
+        # 计算每个大类对应有多少种小类
+        if big_category_name not in label_family_dict:
+            label_family_dict[big_category_name] = {}
+        if small_category_name not in label_family_dict[big_category_name]:
+            label_family_dict[big_category_name][small_category_name] = 1
+        else:
+            label_family_dict[big_category_name][small_category_name] += 1
+
     print(f'total label category : {len(label_dict)} \n')
     print(f'total family category : {len(family_dict)} \n')
     print(label_dict)
     print(family_dict)
+    print(label_family_dict)
+
+    print()
+    i = 1
+    for label in label_family_dict:
+        print(f'{i}. for label {label}:')
+        print(f'there are {len(label_family_dict[label])} families')
+        print(label_family_dict[label])
+        print()
+        i += 1
 
 
 if __name__ == "__main__":
