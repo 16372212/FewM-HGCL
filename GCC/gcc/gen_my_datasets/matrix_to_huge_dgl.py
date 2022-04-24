@@ -391,7 +391,7 @@ def get_saved_sample_subgraph():
 
 
 # 构造dgl子图
-draw_dgl_from_matrix()
+# draw_dgl_from_matrix()
 
 # 构造dgl子图的增强子图
 # draw_aug_dgls()
