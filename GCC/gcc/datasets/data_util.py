@@ -21,17 +21,11 @@ import torch
 import torch.nn.functional as F
 from dgl.data.tu import TUDataset
 from scipy.sparse import linalg
-# root_path = os.path.abspath("./")
-# sys.path.append(root_path)
-# from gcc.Sample import Sample
-# from gcc.Sample import Node
-# from gcc.gen_my_datasets.matrix_to_dgl import samples_to_dgl
-# from gcc.gen_my_datasets.matrix_to_huge_dgl import get_each_sample_subgraph
 from dgl.data.utils import load_graphs
 
 
-GRAPH_INPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_data.bin'
-GRAPH_AUG_INPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_aug_data.bin'
+GRAPH_INPUT_PATH = '../mid_data/gcc_input/subgraphs_train_data.bin'
+GRAPH_AUG_INPUT_PATH = '../mid_data/gcc_input/subgraphs_train_aug_data.bin'
 
 
 def batcher():

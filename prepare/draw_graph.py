@@ -11,19 +11,22 @@ import sys
 
 import pymongo
 
+root_path = os.path.abspath("./")
+sys.path.append(root_path)
+
 from analyze.label_analyze import get_labels_from_file
 
-GRAPH_OUTPUT_PATH = '../mid_data/graph.pkl'
-NODE_OUTPUT_PATH = '../mid_data/nodes.pkl'
-SAMPLE_LIST_OUTPUT_PATH = '../mid_data/sample_list.pkl'
-SAMPLE_SAMPLE_NUM_TO_NODE_ID = '../mid_data/sample_num_to_node_id.pkl'
-LABEL_FILE = "../label/sample_result.txt"
+GRAPH_OUTPUT_PATH = 'mid_data/graph.pkl'
+NODE_OUTPUT_PATH = 'mid_data/nodes.pkl'
+SAMPLE_LIST_OUTPUT_PATH = 'mid_data/sample_list.pkl'
+SAMPLE_SAMPLE_NUM_TO_NODE_ID = 'mid_data/sample_num_to_node_id.pkl'
+LABEL_FILE = "label/sample_result.txt"
 
 labels = get_labels_from_file(LABEL_FILE)
 
 print('Loaded Labels')
 
-with open('../mid_data/api_index_map.pkl', 'rb') as fr:
+with open('mid_data/api_index_map.pkl', 'rb') as fr:
     api_index_matrix = pickle.load(fr)
 
 MAX_API_NUM = 50
@@ -224,47 +227,49 @@ def connect(node1, node2):
     #     graph[node2.num][node1.type_].add(node1.num)
 
 
-if __name__ == "__main__":
-    graph = {}
-    Nodes = []
-    ip = "192.168.105.224"
-    port = 27017
-    # database_name = "cuckoo_nfs_db2"
-    collection_name = "analysis"
-    client = pymongo.MongoClient(host=ip, port=port, unicode_decode_error_handler='ignore')
-    dblist = client.list_database_names()
-    # collections = client[database_name][collection_name]
+graph = {}
+Nodes = []
+ip = "192.168.105.224"
+port = 27017
+# database_name = "cuckoo_nfs_db2"
+collection_name = "analysis"
+client = pymongo.MongoClient(host=ip, port=port, unicode_decode_error_handler='ignore')
+dblist = client.list_database_names()
+# collections = client[database_name][collection_name]
 
-    # static_collection = client['static_info_db']
-    # result_collection = client['labels']
+# static_collection = client['static_info_db']
+# result_collection = client['labels']
 
-    # 用于存储所有的sample
-    sample_list = []
+# 用于存储所有的sample
+sample_list = []
 
-    # 用来存储所有的sample_num 与 node_id的对应关系
-    sample_num_to_node_id = {}
+# 用来存储所有的sample_num 与 node_id的对应关系
+sample_num_to_node_id = {}
 
-    # list用于存储所有的Node实体名称(唯一标识),用于快速检测是否存在,是否需要重新创建新的Node;
-    # map对应 {实体 Node: 编号 id},用于快速检索在graph中的位置
-    process_list = []
-    process_map = {}
-    file_list = set()
-    file_map = {}
-    reg_list = set()
-    reg_map = {}
-    memory_list = set()
-    memory_map = {}
-    sign_list = set()
-    sign_map = {}
-    network_list = set()
-    network_map = {}
+# list用于存储所有的Node实体名称(唯一标识),用于快速检测是否存在,是否需要重新创建新的Node;
+# map对应 {实体 Node: 编号 id},用于快速检索在graph中的位置
+process_list = []
+process_map = {}
+file_list = set()
+file_map = {}
+reg_list = set()
+reg_map = {}
+memory_list = set()
+memory_map = {}
+sign_list = set()
+sign_map = {}
+network_list = set()
+network_map = {}
 
-    sample_label = {}  # 用来存储所有的sample对应的list
-    MAX_FAMILY_NUM_THREAD = 20
+sample_label = {}  # 用来存储所有的sample对应的list
+MAX_FAMILY_NUM_THREAD = 20
 
-    databases_name = ["cuckoo_nfs_db", "cuckoo_nfs_db2", "cuckoo_nfs_db3", "cuckoo_nfs_db4"]  # ,"cuckoo_nfs_db5"]
-    dbcalls_dict = {'cuckoo_nfs_db': 'from_nfs_db1', 'cuckoo_nfs_db2': 'from_nfs_db2', 'cuckoo_nfs_db3': 'from_nfs_db3',
-                    'cuckoo_nfs_db4': 'from_nfs_db4'}
+databases_name = ["cuckoo_nfs_db", "cuckoo_nfs_db2", "cuckoo_nfs_db3", "cuckoo_nfs_db4"]  # ,"cuckoo_nfs_db5"]
+dbcalls_dict = {'cuckoo_nfs_db': 'from_nfs_db1', 'cuckoo_nfs_db2': 'from_nfs_db2', 'cuckoo_nfs_db3': 'from_nfs_db3',
+                'cuckoo_nfs_db4': 'from_nfs_db4'}
+
+
+def create_graph_matrix():
     for database_name in databases_name:
         collections = client[database_name][collection_name]
         file_collection = client[database_name]['report_id_to_file']  # 获取所有的file, hash映射，可以看作一个dict
@@ -500,7 +505,6 @@ if __name__ == "__main__":
     ana_samples()
     # print('graph:')
     # print(graph)
-
 
     # save graph to pkl
     with open(GRAPH_OUTPUT_PATH, 'wb') as fr:

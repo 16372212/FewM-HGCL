@@ -39,8 +39,6 @@ from gcc.datasets import (
 from gcc.datasets.data_util import batcher, labeled_batcher
 from gcc.models import GraphEncoder
 from gcc.utils.misc import AverageMeter, adjust_learning_rate, warmup_linear
-# from gcc.gen_my_datasets import matrix_to_dgl
-# from matrix_to_dgl import Sample
 root_path = os.path.abspath("./")
 sys.path.append(root_path)
 

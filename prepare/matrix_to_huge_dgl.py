@@ -22,27 +22,28 @@ import sys
 import copy
 from dgl.data.utils import save_graphs
 from dgl.data.utils import load_graphs
+from typing import List
+
+from Sample import Node, Sample
 
 root_path = os.path.abspath("./")
 sys.path.append(root_path)
 
-from gcc.Sample import Sample, Node
+GRAPH_OUTPUT_PATH = 'mid_data/graph.pkl'
+NODE_OUTPUT_PATH = 'mid_data/nodes.pkl'
+SAMPLE_LIST_OUTPUT_PATH = 'mid_data/sample_list.pkl'
+API_MATRIX_OUTPUT_PATH = 'mid_data/api_matrix1_3.pkl'
+API_INDEX_OUTPUT_PATH = 'mid_data/api_index_map.pkl'
+SAMPLE_NUM_TO_NODE_ID_PATH = 'mid_data/sample_num_to_node_id.pkl'
 
-GRAPH_OUTPUT_PATH = 'gcc/gen_my_datasets/graph.pkl'
-NODE_OUTPUT_PATH = 'gcc/gen_my_datasets/nodes.pkl'
-SAMPLE_LIST_OUTPUT_PATH = 'gcc/gen_my_datasets/sample_list.pkl'
-API_MATRIX_OUTPUT_PATH = 'gcc/gen_my_datasets/api_matrix1_3.pkl'
-API_INDEX_OUTPUT_PATH = 'gcc/gen_my_datasets/api_index_map.pkl'
-SAMPLE_NUM_TO_NODE_ID_PATH = 'gcc/gen_my_datasets/sample_num_to_node_id.pkl'
+DGL_OUTPUT_PATH = 'mid_data/gcc_input/subgraphs_train_data.bin'  # 构造的dgl
 
-DGL_OUTPUT_PATH = 'gcc/gen_my_datasets/subgraphs_train_data.bin'  # 构造的dgl
-
-GRAPH_SUB_AUG_INPUT_PATH = 'gcc/gen_my_datasets/aug_graphs_15/aug_'  # 构造的正样本的存放路径
+GRAPH_SUB_AUG_INPUT_PATH = 'mid_data/gcc_input/aug_graphs_10/'  # 构造的正样本的存放路径
 
 # 前置数据（已有，直接读取）
 graph = {}  # 二维矩阵dict{}。从原始数据集通过dfs构造出来的二维matrix
-Nodes = []  # 记录矩阵中所有节点的list。Node中的index和graph中节点的index是对应关系。相当于matrix表示的是节点之间的关系，nodes列出所有节点及其属性。
-sample_list = []  # 计算出来的存储所有sample的列表
+Nodes: List[Node] = []  # 记录矩阵中所有节点的list。Node中的index和graph中节点的index是对应关系。相当于matrix表示的是节点之间的关系，nodes列出所有节点及其属性。
+sample_list: List[Sample] = []  # 计算出来的存储所有sample的列表
 
 # 中间数据
 label_index = {}  # Dict[大类label名称: labels中的index]
@@ -164,9 +165,6 @@ def draw_dgl_from_matrix():
     return dgl_graph, sample_id_lists, family_label_lists, big_label_lists
 
 
-huge_graph, sample_id_lists, family_label_lists, big_label_lists = draw_dgl_from_matrix()
-
-
 def ana_process_nodes(sample_id_lists):
     """通过查看这些数据的分布。发现file里面的节点不均匀，少数达到两千多。其他的节点个数都很正常"""
     i = 0
@@ -198,7 +196,7 @@ def analyze_nodes(sample_id, len2_node, g):
     print(f'{sample_id} has {k} processes')
 
 
-def draw_aug_dgls():
+def draw_aug_dgls(huge_graph, sample_id_lists, family_label_lists, big_label_lists):
     """ 根据每个dgl A 构造正样本A'
     不加处理会产生OOM，内存超过。一个是运算时间很慢，但更重要的是，数据量太大，将所有的节点变成都统一存储在一起，内存容量会暴增
     解决办法:
@@ -223,14 +221,14 @@ def draw_aug_dgls():
             num_have_len3node += 1
             len1_node, len2_node, len3_node = dgl.bfs_nodes_generator(huge_graph, sample_id)[:3]
             tuple_temp = (len1_node, len2_node, len3_node)
-            an, dn = get_aug_of_graph_list([], sample_id, len2_node, aug_to_k_index, len(graph_k_list),
-                                           len3_node)  # 应该是加其实
+            an, dn = get_aug_of_graph_list(huge_graph, [], sample_id, len2_node, aug_to_k_index, len(graph_k_list),
+                                           len3_node)
             add_edge_num += an
             del_node_num += dn
         else:
             len1_node, len2_node = dgl.bfs_nodes_generator(huge_graph, sample_id)[:2]
             tuple_temp = (len1_node, len2_node)
-            an, dn = get_aug_of_graph_list([], sample_id, len2_node, aug_to_k_index, len(graph_k_list))  # 应该是加其实
+            an, dn = get_aug_of_graph_list(huge_graph, [], sample_id, len2_node, aug_to_k_index, len(graph_k_list))  # 应该是加其实
             add_edge_num += an
             del_node_num += dn
         subv = torch.unique(torch.cat(tuple_temp)).tolist()
@@ -256,7 +254,7 @@ def draw_aug_dgls():
     return aug_to_k_index
 
 
-def get_aug_of_graph_list(aug_list, sample_id, len2_node, aug_to_k_index, k_list_id, len3_node=None):
+def get_aug_of_graph_list(huge_graph, aug_list, sample_id, len2_node, aug_to_k_index, k_list_id, len3_node=None):
     """得到给出的子图的所有增强子图，并返回list"""
     # g = copy.deepcopy(huge_graph)
     g = huge_graph
@@ -298,7 +296,9 @@ def get_aug_of_graph_list(aug_list, sample_id, len2_node, aug_to_k_index, k_list
         aug_to_k_index.append(k_list_id)
         del_node_num += 1
         # save
-        save_graphs(GRAPH_SUB_AUG_INPUT_PATH + str(k_list_id) + '.bin', aug_list)
+        if not os.path.exists(GRAPH_SUB_AUG_INPUT_PATH):
+            os.makedirs(GRAPH_SUB_AUG_INPUT_PATH)
+        save_graphs(GRAPH_SUB_AUG_INPUT_PATH + 'aug_' + str(k_list_id) + '.bin', aug_list)
         # save_graphs(str(k_list_id)+'.bin', aug_list)
         return add_edge_num, del_node_num
 
@@ -342,7 +342,7 @@ def get_aug_of_graph_list(aug_list, sample_id, len2_node, aug_to_k_index, k_list
             aug_to_k_index.append(k_list_id)
             add_edge_num += 1
     # save
-    save_graphs(GRAPH_SUB_AUG_INPUT_PATH + str(k_list_id) + '.bin', aug_list)
+    save_graphs(GRAPH_SUB_AUG_INPUT_PATH + 'aug_' + str(k_list_id) + '.bin', aug_list)
     return add_edge_num, del_node_num
 
 
@@ -381,17 +381,10 @@ def get_saved_sample_subgraph():
         k_idx = int(dataset['q_to_k_index'][idx])
         q_idx = int(idx - dataset['k_qnum'][k_idx])
 
-        model_path = GRAPH_SUB_AUG_INPUT_PATH + str(k_idx) + '.bin'
+        model_path = GRAPH_SUB_AUG_INPUT_PATH + 'aug_' + str(k_idx) + '.bin'
         graph_q_set = load_graphs(model_path)[0]
 
         # total_aug_num += len(model_path)
         # print(f'-{k_idx}/{idx}--{q_idx}/{len(graph_q_set[0])}-{len(graph_q_set[1])}')
         # print(graph_q_set[0])
     print(f'total_aug_num :{total_aug_num}')
-
-
-# 构造dgl子图
-# draw_dgl_from_matrix()
-
-# 构造dgl子图的增强子图
-# draw_aug_dgls()

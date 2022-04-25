@@ -19,7 +19,6 @@ from dgl.nodeflow import NodeFlow
 from gcc.Sample import Sample
 from gcc.Sample import Node
 from gcc.datasets import data_util
-# from gcc.gen_my_datasets.matrix_to_dgl import samples_to_dgl
 
 
 def worker_init_fn(worker_id):

@@ -1,57 +1,59 @@
-# 异构图构建
-布谷鸟异构图构建，对比学习
+# FewM-HGCL
 
-## 项目结构介绍
+## Installation
 
-dgl_compare_learning:
+### Requirements
 
-- utl 一些可复用性功能
-- test 一些test demo, 测试数据库的链接性、文件是否存在、以及简单例子测试
-- train 
+- Linux with Python ≥ 3.6
+- [PyTorch ≥ 1.4.0](https://pytorch.org/)
+- [0.5 > DGL ≥ 0.4.3](https://www.dgl.ai/pages/start.html)
+- `pip install -r requirements.txt`
+- Install [RDKit](https://www.rdkit.org/docs/Install.html) with `conda install -c conda-forge rdkit=2019.09.2`.
+
+## Quick Start
+
+1. build graphs:
+
+```bash
+python prepare/prepare.py
+```
+2. train:
+
+```bash
+cd GCC
+sh run.sh 
+```
+
+[comment]: <> (```bash)
+
+[comment]: <> (# run comparative experiment)
+
+[comment]: <> (sh run_loop.sh)
+
+[comment]: <> (```)
+
+## Introduction to project structure
+
+- utl some reusability features
+- test some test demos, to test the linkability of the database, whether the file exists, and a simple example test
+- train
   - prepare_gcc_data
-  - GCC gcc作为模型进行测试
-- data （data部分数据暂时只上传input部分，其他需在gitignore中声明）
+  - GCC : gcc as a model for testing
+- data (for the data part of the data, only the input part is temporarily uploaded, and the others need to be declared in gitignore)
   - input_data: input data
-  - mid_data: 中间生成的数据
+  - mid_data: data generated in the middle
   - out_data: output data
-- prepare 数据预处理
-  - read_data 读取数据
+- prepare data preprocessing
+  - read_data read data
   - draw_graph
   - build_dgl_from_graph
   - prepare.py
-- analyze 统计类的工作
-- 资料 纸质版实验资料
+- analyze statistical work
+- Materials Paper version of experimental materials
 
 
-## 运行
-### 1. 先生成需要的graph, aug_graph数据
-aug_graph的生成: 运行matrix_to_huge_dgl.py, 得到gcc\gen_my_datasets\aug_graphs_x
+[comment]: <> (# Dataset Description)
 
-修改my_graph_dataset.py中aug_graphs_x数据的路径。
+[comment]: <> (布谷鸟数据集整理后的放在了mongoDB中。)
 
-### 2. 训练
-gcc文件夹下是根据gcc的源码改写内容，任务可分成节点分类、图分类。
-
-本次实现方法是图分类。
-
-## 运行方法：sh run.sh 对比实验：sh run_loop.sh
-
-## 实验结果
-
-result.rar文件夹下的result.txt可见结果。打印出所有result文件夹下的txt集合后，结果在total_result.txt中。 最高准确率（108类）达到0.81，但大类分类结果比这个低
-
-#### 原因
-
-big_label这里处理的有些问题。可以修改matrix_to_huge_dgl.py， my_
-
-
-
-数据集：
-
-布谷鸟数据集
-
-# 数据集说明
-
-布谷鸟数据集整理后的放在了mongoDB中。
-
-cuckoo_nfs_dX中的数据里，calls这个collection不是和analysis以及其他对应的。
+[comment]: <> (cuckoo_nfs_dX中的数据里，calls这个collection不是和analysis以及其他对应的。)
