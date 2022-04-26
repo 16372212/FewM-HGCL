@@ -1,3 +1,5 @@
 /mid_data/*
 
 GCC/Pretrain_moco_*
+
+*.pkl
