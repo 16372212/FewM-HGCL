@@ -1,5 +1,4 @@
 mid_data/
-
 GCC/Pretrain_moco_*
-
-*.pkl
+mid_data/*.pkl
+mid_data/*.txt

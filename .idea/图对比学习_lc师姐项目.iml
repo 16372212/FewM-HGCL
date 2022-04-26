@@ -5,6 +5,9 @@
       <sourceFolder url="file://$MODULE_DIR$/GCC" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/GCC/gcc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/GCC/tests/.pytest_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/GCC/Pretrain_moco_True_mydataset_gin_layer_5_lr_0.005_decay_1e-05_bsz_32_hid_64_samples_2000_nce_t_0.07_nce_k_16384_rw_hops_256_restart_prob_0.8_aug_1st_ft_False_deg_16_pos_32_momentum_0.99_r0.15" />
+      <excludeFolder url="file://$MODULE_DIR$/mid_data/gcc_input" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (py37)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
