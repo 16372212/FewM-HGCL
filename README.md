@@ -15,7 +15,7 @@
 1. build graphs:
 
 ```bash
-python prepare/prepare.py
+python prepare/main.py
 ```
 2. train:
 

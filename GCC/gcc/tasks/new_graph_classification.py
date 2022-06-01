@@ -1,33 +1,27 @@
 import argparse
 import copy
+import pickle
 import random
+import io
 import warnings
 from collections import defaultdict
 import os, sys
 import networkx as nx
 import numpy as np
-import scipy.sparse as sp
-import torch
-import torch.nn.functional as F
-from scipy import sparse as sp
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from sklearn.model_selection import GridSearchCV, KFold, StratifiedKFold
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.svm import SVC, LinearSVC
-from sklearn.utils import shuffle as skshuffle
-from tqdm import tqdm
 
 # 为了让gcc添加到源路径
 warnings.filterwarnings("ignore")
 root_path = os.path.abspath("./")
 sys.path.append(root_path)
 from gcc.Sample import Sample, Node
-from gcc.datasets.data_util import create_my_dataset
+from gcc.datasets.data_util import create_graph_classification_dataset
 from gcc.tasks import build_model
 
-warnings.filterwarnings("ignore")
+
+GRAPH_OUTPUT_PATH = 'gcc/result/'
+
+family_model_name = "./gcc/result/model_family.pickle.dat"
+big_label_model_name = "./gcc/result/model_big_label.pickle.dat"
 
 
 def k_label_to_q_label(label_k, q_to_k_index):
@@ -40,46 +34,36 @@ def k_label_to_q_label(label_k, q_to_k_index):
 class GraphClassification(object):
     def __init__(self, dataset, model, hidden_size, num_shuffle, seed, **model_args):
         assert model == "from_numpy_graph"
-        dataset = create_my_dataset()
+        dataset = create_graph_classification_dataset()
         self.num_nodes = len(dataset['graph_labels'])
         self.num_classes = dataset['num_labels']
         self.label_matrix = np.zeros((self.num_nodes, self.num_classes), dtype=int)
         self.labels = np.array(k_label_to_q_label(dataset['graph_labels'], dataset['q_to_k_index']))
-        # self.labels = np.array(dataset['graph_labels'])
+        # self.labels = np.array(dataset.graph_labels)
+        self.big_labels = np.array(k_label_to_q_label(dataset['graph_big_labels'], dataset['q_to_k_index']))
         self.model = build_model(model, hidden_size, **model_args)
         self.hidden_size = hidden_size
         self.num_shuffle = num_shuffle
         self.seed = seed
+        self.test_graphs = []
+        print(f'self labels')
+        print(self.labels)
+        print(f'self big labels')
+        print(self.big_labels[0:20])
 
-    def train(self):
-        embeddings = self.model.train(None)
-        return self.svc_classify(embeddings, self.labels, False)
+    def predict(self):
+        # TODO self.test_graphs转embeddings
+        embeddings = [[]]
+        result = {}
+        result['family_result'] = self.svc_predict(embeddings, family_model_name)
+        result['big_label_result'] = self.svc_predict(embeddings, big_label_model_name)
+        return result
 
-    def svc_classify(self, x, y, search):
-        kf = StratifiedKFold(n_splits=3, shuffle=True, random_state=self.seed)
-        accuracies = []
-        for train_index, test_index in kf.split(x, y):
-
-            x_train, x_test = x[train_index], x[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-            # x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.1)
-            print(f'x_train len: {len(x_train)}, y_train len: {len(y_train)}')
-            if search:
-                params = {"C": [1, 10, 100, 1000, 10000, 100000]}
-                classifier = GridSearchCV(
-                    SVC(), params, cv=5, scoring="accuracy", verbose=0, n_jobs=-1
-                )
-                print('search')
-            else:
-                classifier = SVC(C=100000)
-                print('not search')
-            classifier.fit(x_train, y_train)
-            print('classifier finish training')
-            recall.append(recall_score(y_test, classifier.predict(x_test)))
-            precision.append(precision_score(y_test, classifier.predict(x_test)))
-            accuracies.append(accuracy_score(y_test, classifier.predict(x_test)))
-            f1_score.append(f1_score(y_test, classifier.predict(x_test)))
-        return {"Micro-F1": np.mean(accuracies),}
+    def svc_predict(self, x, model_path):
+        loaded_model = pickle.load(open(model_path, "rb"))
+        y_pred = loaded_model.predict(x)
+        print(f'y_pred: {y_pred}')
+        return y_pred
 
 
 if __name__ == "__main__":
@@ -99,5 +83,6 @@ if __name__ == "__main__":
         args.seed,
         emb_path=args.emb_path,
     )
-    ret = task.train()
+    ret = task.predict()
     print(ret)
+    # write result

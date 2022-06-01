@@ -110,10 +110,10 @@ def get_api_property(type_, api_name):
     return [int(0)] * API_LIST_LEN
 
 
-def gen_ndata_property():
+def gen_ndata_property(my_nodes):
     node_type = []  # node_id: node_type
     api_pro = []  # node_id: api_pro
-    for node in Nodes:
+    for node in my_nodes:
         node_type.append(td[node.type_])
         api_pro.append(get_api_property(node.type_, node.name))
     return node_type, api_pro
@@ -157,7 +157,7 @@ def draw_dgl_from_matrix():
     print(f'{error_sample_nodes_in_graph} nodes not begin with s in graph(file-process)、(reg-process)')
     # 构建dgl_graph
     dgl_graph = dgl.DGLGraph((torch.tensor(left_nodes), torch.tensor(right_nodes)))
-    node_type, api_pro = gen_ndata_property()  # 根据Nodes的顺序得到的，未筛选
+    node_type, api_pro = gen_ndata_property(Nodes)  # 根据Nodes的顺序得到的，未筛选
     # 构造dgl节点的三种属性
     dgl_graph.ndata['node_type'] = torch.tensor(node_type)
     dgl_graph.ndata['api_pro'] = torch.tensor(np.array(api_pro))

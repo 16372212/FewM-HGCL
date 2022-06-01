@@ -16,6 +16,7 @@ import numpy as np
 import torch
 from dgl.data import AmazonCoBuy, Coauthor
 import os, sys
+
 root_path = os.path.abspath("./")
 sys.path.append(root_path)
 from gcc.datasets import data_util
@@ -25,8 +26,7 @@ from scipy.sparse import linalg
 import sklearn.preprocessing as preprocessing
 import torch.nn.functional as F
 
-
-GRAPH_SUB_AUG_INPUT_PATH = '../mid_data/gcc_input/aug_graphs_15/aug_'
+GRAPH_SUB_AUG_INPUT_PATH = '../mid_data/gcc_input/aug_graphs_10/aug_'
 
 
 def add_undirected_graph_positional_embedding(g, hidden_size, retry=10):
@@ -79,6 +79,7 @@ def worker_init_fn(worker_id):
     )
     dataset.length = sum([g.number_of_nodes() for g in dataset.graphs])
     np.random.seed(worker_info.seed % (2 ** 32))
+
 
 class GraphDataset(torch.utils.data.Dataset):
     def __init__(
@@ -212,11 +213,10 @@ class MyGraphClassificationDataset(NodeClassificationDataset):
 
     def __getitem__(self, idx):
         # 针对图分类，id是针对图的id
-        
+
         k_idx = int(self.dataset['q_to_k_index'][idx])
         q_idx = int(idx - self.dataset['k_qnum'][k_idx])
-
-        model_path = GRAPH_SUB_AUG_INPUT_PATH+str(k_idx)+'.bin'
+        model_path = GRAPH_SUB_AUG_INPUT_PATH + str(k_idx) + '.bin'
         graph_q_set = load_graphs(model_path)[0]
 
         graph_k = self.k_graphs[k_idx]

@@ -53,7 +53,7 @@ def parse_option():
     parser.add_argument("--tb-freq", type=int, default=250, help="tb frequency")
     parser.add_argument("--save-freq", type=int, default=1, help="save frequency")
     parser.add_argument("--batch-size", type=int, default=32, help="batch_size")
-    parser.add_argument("--num-workers", type=int, default=2, help="num of workers to use")
+    parser.add_argument("--num-workers", type=int, default=0, help="num of workers to use")
     parser.add_argument("--num-copies", type=int, default=2, help="num of dataset copies that fit in memory")
     parser.add_argument("--num-samples", type=int, default=2000, help="num of samples per batch per worker")
     parser.add_argument("--epochs", type=int, default=10, help="number of training epochs")

@@ -1,5 +1,5 @@
-mid_data/
+mid_data/:
 GCC/Pretrain_moco_*
 mid_data/*.pkl
 mid_data/*.txt
-mid_data/gcc_input
+mid_data/gcc_input/

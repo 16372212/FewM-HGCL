@@ -10,9 +10,11 @@ import re
 import sys
 
 import pymongo
+from Sample import Node, Sample
 
 root_path = os.path.abspath("./")
 sys.path.append(root_path)
+from util.const import databases_name, dbcalls_dict
 
 from analyze.label_analyze import get_labels_from_file
 
@@ -22,45 +24,7 @@ SAMPLE_LIST_OUTPUT_PATH = 'mid_data/sample_list.pkl'
 SAMPLE_SAMPLE_NUM_TO_NODE_ID = 'mid_data/sample_num_to_node_id.pkl'
 LABEL_FILE = "label/sample_result.txt"
 
-labels = get_labels_from_file(LABEL_FILE)
-
-print('Loaded Labels')
-
-with open('mid_data/api_index_map.pkl', 'rb') as fr:
-    api_index_matrix = pickle.load(fr)
-
 MAX_API_NUM = 50
-
-
-class Sample:
-    def __init__(self, num, name, label, family):  # ,label_code,family_code):
-        self.num = num
-        self.name = name
-        self.label = label
-        self.family = family
-        self.key = ''  # 新加的
-        # self.label_code = label_code
-        # self.family_code = family_code
-        # num 编号, name file_hash, label 大类, family 小类,两个code 编号
-
-
-class Node:
-    def __init__(self, num, name, type_, sample, pid, key):
-        self.num = num
-        self.name = name
-        self.type_ = type_
-        self.sample = sample
-        self.pid = pid
-        self.key = key
-        #  num 编号, name 唯一标识, type_ 种类, sample 归属样本, pid 进程号, 后两个没用
-        ## type_: process, file, reg, memory, sign, network
-        ## process: x['behavior']['processtree'] to do dfs
-        ## file   : x['behavior']['generic'][(数组下标)]['summary'][api] , api in ['file_created','file_written']
-        ## reg    : x['behavior']['generic'][(数组下标)]['summary'][api] , api in ['regkey_read','regkey_opened'] 提取 {} 部分
-        ## memory : x['behavior']['generic'][(数组下标)]['summary']['dll_loaded']
-        ## sign   : x['signatures'][(数组下标)]['name']
-        ## network: x['network']['tcp']['dst'] | x['network']['udp']['dst']
-        ##
 
 
 def analyze_nodes():
@@ -233,8 +197,6 @@ ip = "192.168.105.224"
 port = 27017
 # database_name = "cuckoo_nfs_db2"
 collection_name = "analysis"
-client = pymongo.MongoClient(host=ip, port=port, unicode_decode_error_handler='ignore')
-dblist = client.list_database_names()
 # collections = client[database_name][collection_name]
 
 # static_collection = client['static_info_db']
@@ -260,16 +222,18 @@ sign_list = set()
 sign_map = {}
 network_list = set()
 network_map = {}
+api_map = {}
 
 sample_label = {}  # 用来存储所有的sample对应的list
 MAX_FAMILY_NUM_THREAD = 20
 
-databases_name = ["cuckoo_nfs_db", "cuckoo_nfs_db2", "cuckoo_nfs_db3", "cuckoo_nfs_db4"]  # ,"cuckoo_nfs_db5"]
-dbcalls_dict = {'cuckoo_nfs_db': 'from_nfs_db1', 'cuckoo_nfs_db2': 'from_nfs_db2', 'cuckoo_nfs_db3': 'from_nfs_db3',
-                'cuckoo_nfs_db4': 'from_nfs_db4'}
-
 
 def create_graph_matrix():
+    client = pymongo.MongoClient(host=ip, port=port, unicode_decode_error_handler='ignore')
+    # dblist = client.list_database_names()
+    with open('mid_data/api_index_map.pkl', 'rb') as fr:
+        api_index_matrix = pickle.load(fr)
+    labels = get_labels_from_file(LABEL_FILE)
     for database_name in databases_name:
         collections = client[database_name][collection_name]
         file_collection = client[database_name]['report_id_to_file']  # 获取所有的file, hash映射，可以看作一个dict
@@ -477,6 +441,7 @@ def create_graph_matrix():
                 # 先判断这个api是否在里面
                 if call not in api_index_matrix:
                     continue
+                api_map[call] = len(Nodes)
                 apinode = Node(len(Nodes), call, 'api', '', 0, '')  # 将api对应的转到id， 这个id不太对
                 connect(sample, apinode)
                 Nodes.append(apinode)
@@ -539,10 +504,17 @@ def create_graph_matrix():
             sample_list[i].family) + "\n")
     f.close()
     print("Write Sample Done")
-    # for file in file_path
-
-    # n * m 维度, n 样本个数, m Node 节点个数 = process + file + reg + memory + sign + network
-    matrix = []
 
     print('sample num to node id map: ')
     print(sample_num_to_node_id)
+
+    # save maps:
+    property_maps = {"api": api_map,
+                     "network": network_map,
+                     "reg": reg_map,
+                     "file": file_map,
+                     "process": process_map}
+
+    with open("mid_data/property_maps.pkl", "wb") as fr:
+        pickle.dump(property_maps, fr)
+    print("Write property_maps Done")
